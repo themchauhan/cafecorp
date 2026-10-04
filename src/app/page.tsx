@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { adminDb } from '@/lib/firebase/admin';
 import { getSessionProfile } from '@/lib/auth/session';
 
 const QUICK_ACTIONS: Record<
@@ -29,6 +30,10 @@ export default async function Home() {
   }
 
   const actions = QUICK_ACTIONS[profile.role];
+  const tenantName = profile.tenantId
+    ? ((await adminDb.doc(`tenants/${profile.tenantId}`).get()).data()?.name ??
+      profile.tenantId)
+    : null;
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-4 py-10">
@@ -37,7 +42,7 @@ export default async function Home() {
         <p className="text-[var(--muted)]">
           Signed in as{' '}
           <strong className="text-[var(--foreground)]">{profile.role}</strong>
-          {profile.tenantId ? ` · tenant ${profile.tenantId}` : ' · platform'}.
+          {tenantName ? ` · tenant ${tenantName}` : ' · platform'}.
         </p>
       </div>
 
