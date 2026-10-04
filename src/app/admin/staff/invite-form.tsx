@@ -10,6 +10,7 @@ export function InviteForm() {
   const [invited, setInvited] = useState<{
     email: string;
     resetLink: string;
+    emailSent: boolean;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -23,7 +24,11 @@ export function InviteForm() {
     if (!result.ok) {
       setError(result.error);
     } else {
-      setInvited({ email, resetLink: result.data.resetLink });
+      setInvited({
+        email,
+        resetLink: result.data.resetLink,
+        emailSent: result.data.emailSent,
+      });
       setEmail('');
       setName('');
     }
@@ -71,8 +76,18 @@ export function InviteForm() {
         <div className="rounded border border-zinc-300 p-3 text-sm dark:border-zinc-700">
           <p className="mb-1 text-zinc-600 dark:text-zinc-400">
             Invited <strong data-testid="invited-email">{invited.email}</strong>
-            . No email is sent automatically — share this one-time
-            password-setup link with them directly:
+            .{' '}
+            {invited.emailSent ? (
+              <>
+                An invite email has been sent to them. You can also share this
+                one-time password-setup link directly:
+              </>
+            ) : (
+              <>
+                No email is sent automatically — share this one-time
+                password-setup link with them directly:
+              </>
+            )}
           </p>
           <code className="break-all">{invited.resetLink}</code>
         </div>

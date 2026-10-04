@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { adminAuth, adminDb } from '@/lib/firebase/admin';
 import { type ActionResult, runAction } from '@/lib/action-result';
 import { logAudit } from '@/lib/auth/audit';
+import { sendInviteEmail } from '@/lib/email';
 import {
   AuthError,
   getSessionProfile,
@@ -24,7 +25,7 @@ export async function inviteStaff(input: {
   email: string;
   name: string;
   role: 'ADMIN' | 'STAFF';
-}): Promise<ActionResult<{ resetLink: string }>> {
+}): Promise<ActionResult<{ resetLink: string; emailSent: boolean }>> {
   return runAction(async () => {
     const profile = requireRole(await getSessionProfile(), ['ADMIN']);
     await requireActiveTenant(profile);
@@ -54,13 +55,23 @@ export async function inviteStaff(input: {
       .doc(`tenants/${tenantId}/profiles/${uid}`)
       .set({ name, role, status: 'ACTIVE' });
 
-    // No email provider is configured for this MVP — the admin shares
-    // this link with the invitee directly (chat/SMS/in person).
     const resetLink = await adminAuth.generatePasswordResetLink(email);
+    // Email delivery is best-effort (no Gmail credentials configured
+    // yet is a normal, non-fatal state) — the UI always shows the link
+    // too, so the admin can share it manually either way.
+    const { sent: emailSent } = await sendInviteEmail({
+      to: email,
+      name,
+      resetLink,
+    });
 
-    await logAudit(profile, 'STAFF_INVITED', 'profile', uid, { email, role });
+    await logAudit(profile, 'STAFF_INVITED', 'profile', uid, {
+      email,
+      role,
+      emailSent,
+    });
     revalidatePath('/admin/staff');
-    return { resetLink };
+    return { resetLink, emailSent };
   });
 }
 

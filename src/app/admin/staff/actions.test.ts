@@ -11,6 +11,7 @@ const {
   docUpdate,
   getSessionProfileMock,
   logAuditMock,
+  sendInviteEmailMock,
 } = vi.hoisted(() => ({
   getUserByEmail: vi.fn(),
   createUser: vi.fn(),
@@ -22,6 +23,7 @@ const {
   docUpdate: vi.fn(),
   getSessionProfileMock: vi.fn(),
   logAuditMock: vi.fn(),
+  sendInviteEmailMock: vi.fn(),
 }));
 
 vi.mock('@/lib/firebase/admin', () => ({
@@ -39,6 +41,7 @@ vi.mock('@/lib/firebase/admin', () => ({
 
 vi.mock('@/lib/auth/audit', () => ({ logAudit: logAuditMock }));
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
+vi.mock('@/lib/email', () => ({ sendInviteEmail: sendInviteEmailMock }));
 
 vi.mock('@/lib/auth/session', async () => {
   const actual =
@@ -61,6 +64,7 @@ describe('inviteStaff', () => {
     vi.clearAllMocks();
     getSessionProfileMock.mockResolvedValue(admin);
     generatePasswordResetLink.mockResolvedValue('https://example.com/reset');
+    sendInviteEmailMock.mockResolvedValue({ sent: false });
   });
 
   it("creates a new Firebase Auth user and scopes claims to the admin's own tenant", async () => {
@@ -90,8 +94,37 @@ describe('inviteStaff', () => {
     });
     expect(result).toEqual({
       ok: true,
-      data: { resetLink: 'https://example.com/reset' },
+      data: { resetLink: 'https://example.com/reset', emailSent: false },
     });
+  });
+
+  it('reports emailSent true and includes it in the audit log when delivery succeeds', async () => {
+    getUserByEmail.mockRejectedValue({ code: 'auth/user-not-found' });
+    createUser.mockResolvedValue({ uid: 'new-uid' });
+    sendInviteEmailMock.mockResolvedValue({ sent: true });
+
+    const result = await inviteStaff({
+      email: 'staff@demo.cafe',
+      name: 'New Staff',
+      role: 'STAFF',
+    });
+
+    expect(sendInviteEmailMock).toHaveBeenCalledWith({
+      to: 'staff@demo.cafe',
+      name: 'New Staff',
+      resetLink: 'https://example.com/reset',
+    });
+    expect(result).toEqual({
+      ok: true,
+      data: { resetLink: 'https://example.com/reset', emailSent: true },
+    });
+    expect(logAuditMock).toHaveBeenCalledWith(
+      admin,
+      'STAFF_INVITED',
+      'profile',
+      'new-uid',
+      { email: 'staff@demo.cafe', role: 'STAFF', emailSent: true },
+    );
   });
 
   it('reuses an existing Firebase Auth user instead of creating a duplicate', async () => {
