@@ -50,13 +50,13 @@ export default async function MenuPage() {
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-10 px-4 py-16">
       <section className="flex flex-col gap-4">
-        <h1 className="text-2xl font-semibold tracking-tight">Categories</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Categories</h1>
         <CategoryTable categories={categories} />
         <CategoryForm />
       </section>
 
-      <section className="flex flex-col gap-4 border-t border-zinc-200 pt-8 dark:border-zinc-800">
-        <h2 className="text-2xl font-semibold tracking-tight">Menu items</h2>
+      <section className="flex flex-col gap-4 border-t border-[var(--border)] pt-8">
+        <h2 className="text-2xl font-bold tracking-tight">Menu items</h2>
         <ItemTable items={items} categories={categories} />
         <ItemForm categories={categories} />
       </section>

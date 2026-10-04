@@ -50,15 +50,16 @@ export default async function ReceiptPage({
   const paid = amountPaid(order.payments);
 
   return (
-    <main className="mx-auto flex w-full max-w-sm flex-1 flex-col gap-4 px-4 py-16">
+    <main className="mx-auto flex w-full max-w-sm flex-1 flex-col gap-4 px-4 py-8">
       <div className="flex items-center justify-between print:hidden">
-        <h1 className="text-2xl font-semibold tracking-tight">Receipt</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Receipt</h1>
         <PrintButton />
       </div>
 
-      <div className="flex flex-col gap-2 border border-zinc-300 p-4 text-sm dark:border-zinc-700">
+      {/* Plain black-on-white — this prints on thermal/receipt paper. */}
+      <div className="flex flex-col gap-2 border border-zinc-300 p-4 text-sm">
         <p className="font-medium">{order.orderType.replace('_', '-')}</p>
-        <ul className="flex flex-col gap-1 border-t border-zinc-300 pt-2 dark:border-zinc-700">
+        <ul className="flex flex-col gap-1 border-t border-zinc-300 pt-2">
           {order.items.map((item, index) => (
             <li key={index} className="flex justify-between">
               <span>
@@ -68,11 +69,11 @@ export default async function ReceiptPage({
             </li>
           ))}
         </ul>
-        <p className="flex justify-between border-t border-zinc-300 pt-2 font-medium dark:border-zinc-700">
+        <p className="flex justify-between border-t border-zinc-300 pt-2 font-medium">
           <span>Total</span>
           <span>{total.toFixed(2)}</span>
         </p>
-        <ul className="flex flex-col gap-1 border-t border-zinc-300 pt-2 text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
+        <ul className="flex flex-col gap-1 border-t border-zinc-300 pt-2 text-zinc-600">
           {order.payments.map((payment, index) => (
             <li key={index} className="flex justify-between">
               <span>Paid via {payment.mode}</span>
@@ -80,7 +81,7 @@ export default async function ReceiptPage({
             </li>
           ))}
         </ul>
-        <p className="flex justify-between text-zinc-600 dark:text-zinc-400">
+        <p className="flex justify-between text-zinc-600">
           <span>Amount paid</span>
           <span>{paid.toFixed(2)}</span>
         </p>

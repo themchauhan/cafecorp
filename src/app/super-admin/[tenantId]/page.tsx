@@ -59,11 +59,11 @@ export default async function SuperAdminTenantPage({
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-4 py-16">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{tenant.name}</h1>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        <h1 className="text-2xl font-bold tracking-tight">{tenant.name}</h1>
+        <p className="text-sm text-[var(--muted)]">
           {tenant.email} &middot; {tenant.phone}
         </p>
-        <p className="text-sm">
+        <p className="text-sm font-medium">
           {isTenantCurrentlyActive(tenant)
             ? 'Active'
             : 'Restricted (read-only for its staff)'}

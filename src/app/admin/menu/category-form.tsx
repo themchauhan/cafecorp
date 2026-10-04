@@ -24,14 +24,17 @@ export function CategoryForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-2">
+    <form
+      onSubmit={handleSubmit}
+      className="card flex flex-wrap items-end gap-3 p-4"
+    >
       <input
         type="text"
         required
         placeholder="Category name"
         value={name}
         onChange={(event) => setName(event.target.value)}
-        className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+        className="input w-48"
       />
       <input
         type="number"
@@ -39,16 +42,14 @@ export function CategoryForm() {
         placeholder="Sort order"
         value={sortOrder}
         onChange={(event) => setSortOrder(event.target.value)}
-        className="w-28 rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+        className="input w-28"
       />
-      <button
-        type="submit"
-        disabled={loading}
-        className="rounded bg-zinc-900 px-3 py-2 text-sm text-white disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900"
-      >
+      <button type="submit" disabled={loading} className="btn btn-primary">
         {loading ? 'Adding…' : 'Add category'}
       </button>
-      {error && <p className="w-full text-sm text-red-600">{error}</p>}
+      {error && (
+        <p className="w-full text-sm text-[var(--color-danger-600)]">{error}</p>
+      )}
     </form>
   );
 }

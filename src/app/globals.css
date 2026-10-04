@@ -1,15 +1,15 @@
 @import 'tailwindcss';
 
 :root {
-  --background: #fafaf9;
-  --foreground: #1c1917;
+  --background: #fdf6ec;
+  --foreground: #2a1a12;
   --surface: #ffffff;
-  --border: #e7e5e4;
-  --muted: #78716c;
+  --border: #ecd9c3;
+  --muted: #8a7260;
 
-  --color-brand-50: #fff7ed;
-  --color-brand-100: #ffedd5;
-  --color-brand-500: #f97316;
+  --color-brand-50: #fff1e0;
+  --color-brand-100: #ffdfb0;
+  --color-brand-500: #fb8716;
   --color-brand-600: #ea580c;
   --color-brand-700: #c2410c;
 
@@ -57,23 +57,13 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #1c1917;
-    --foreground: #f5f5f4;
-    --surface: #292524;
-    --border: #44403c;
-    --muted: #a8a29e;
-
-    --color-brand-50: #431407;
-    --color-brand-100: #7c2d12;
-    --color-success-50: #052e16;
-    --color-warning-50: #451a03;
-    --color-danger-50: #450a0a;
-    --color-info-50: #172554;
-  }
-}
-
+/*
+ * One warm, bright theme always — deliberately not following the
+ * device's dark-mode preference. A near-black auto-dark theme reads
+ * as dull/flat for a staff-facing POS used in a bright counter/
+ * kitchen environment; every screen here is tuned for this one
+ * palette rather than needing to also look good inverted.
+ */
 body {
   background: var(--background);
   color: var(--foreground);

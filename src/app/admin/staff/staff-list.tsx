@@ -35,10 +35,12 @@ export function StaffList({
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      {error && <p className="text-sm text-red-600">{error}</p>}
+    <div className="card flex flex-col gap-2 p-4">
+      {error && (
+        <p className="text-sm text-[var(--color-danger-600)]">{error}</p>
+      )}
       <table className="w-full text-left text-sm">
-        <thead className="text-zinc-500 dark:text-zinc-400">
+        <thead className="text-[var(--muted)]">
           <tr>
             <th className="py-1 pr-4">Name</th>
             <th className="py-1 pr-4">Email</th>
@@ -49,10 +51,7 @@ export function StaffList({
         </thead>
         <tbody>
           {staff.map((row) => (
-            <tr
-              key={row.uid}
-              className="border-t border-zinc-200 dark:border-zinc-800"
-            >
+            <tr key={row.uid} className="border-t border-[var(--border)]">
               <td className="py-2 pr-4">{row.name}</td>
               <td className="py-2 pr-4">{row.email}</td>
               <td className="py-2 pr-4">{row.role}</td>
@@ -62,7 +61,7 @@ export function StaffList({
                   <button
                     onClick={() => toggle(row)}
                     disabled={isPending}
-                    className="text-sm underline underline-offset-4 disabled:opacity-50"
+                    className={`btn btn-sm ${row.status === 'ACTIVE' ? 'btn-danger' : 'btn-secondary'}`}
                   >
                     {row.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}
                   </button>

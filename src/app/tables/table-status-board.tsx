@@ -37,7 +37,7 @@ export function TableStatusBoard({
   }, [tenantId]);
 
   if (occupied === null) {
-    return <p className="text-sm text-zinc-600 dark:text-zinc-400">Loading…</p>;
+    return <p className="text-sm text-[var(--muted)]">Loading…</p>;
   }
 
   return (
@@ -47,22 +47,22 @@ export function TableStatusBoard({
         return (
           <div
             key={table.id}
-            className={`flex flex-col items-center gap-1 rounded border p-4 text-sm ${
+            className={`card flex min-h-24 flex-col items-center justify-center gap-1.5 p-4 text-sm ${
               orderId
-                ? 'border-amber-400 bg-amber-50 dark:border-amber-700 dark:bg-amber-950'
-                : 'border-zinc-200 dark:border-zinc-800'
+                ? 'border-[var(--color-warning-600)] bg-[var(--color-warning-50)]'
+                : ''
             }`}
           >
-            <span className="font-medium">{table.label}</span>
+            <span className="text-base font-bold">{table.label}</span>
             {orderId ? (
               <Link
                 href={`/orders/${orderId}`}
-                className="text-xs underline underline-offset-4"
+                className="badge badge-kot hover:underline"
               >
                 Occupied
               </Link>
             ) : (
-              <span className="text-xs text-zinc-500 dark:text-zinc-400">
+              <span className="badge border border-[var(--border)] text-[var(--muted)]">
                 Free
               </span>
             )}

@@ -32,51 +32,50 @@ export default async function SuperAdminPage() {
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-4 py-16">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Tenants</h1>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        <h1 className="text-2xl font-bold tracking-tight">Tenants</h1>
+        <p className="text-sm text-[var(--muted)]">
           {activeCount} active of {tenants.length} total
         </p>
       </div>
 
-      <table className="w-full text-left text-sm">
-        <thead className="text-zinc-500 dark:text-zinc-400">
-          <tr>
-            <th className="py-1 pr-4">Name</th>
-            <th className="py-1 pr-4">Plan</th>
-            <th className="py-1 pr-4">Status</th>
-            <th className="py-1" />
-          </tr>
-        </thead>
-        <tbody>
-          {tenants.map((tenant) => (
-            <tr
-              key={tenant.id}
-              className="border-t border-zinc-200 dark:border-zinc-800"
-            >
-              <td className="py-2 pr-4">{tenant.name}</td>
-              <td className="py-2 pr-4">{tenant.plan}</td>
-              <td className="py-2 pr-4">
-                {isTenantCurrentlyActive(tenant)
-                  ? 'Active'
-                  : tenant.status === 'SUSPENDED'
-                    ? 'Suspended'
-                    : 'Expired'}
-              </td>
-              <td className="py-2">
-                <Link
-                  href={`/super-admin/${tenant.id}`}
-                  className="underline underline-offset-4"
-                >
-                  Manage
-                </Link>
-              </td>
+      <div className="card overflow-x-auto">
+        <table className="w-full text-left text-sm">
+          <thead className="text-[var(--muted)]">
+            <tr>
+              <th className="px-4 py-3 pr-4 font-semibold">Name</th>
+              <th className="px-4 py-3 pr-4 font-semibold">Plan</th>
+              <th className="px-4 py-3 pr-4 font-semibold">Status</th>
+              <th className="px-4 py-3" />
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {tenants.map((tenant) => (
+              <tr key={tenant.id} className="border-t border-[var(--border)]">
+                <td className="px-4 py-3 pr-4 font-medium">{tenant.name}</td>
+                <td className="px-4 py-3 pr-4">{tenant.plan}</td>
+                <td className="px-4 py-3 pr-4">
+                  {isTenantCurrentlyActive(tenant)
+                    ? 'Active'
+                    : tenant.status === 'SUSPENDED'
+                      ? 'Suspended'
+                      : 'Expired'}
+                </td>
+                <td className="px-4 py-3">
+                  <Link
+                    href={`/super-admin/${tenant.id}`}
+                    className="font-semibold text-[var(--color-brand-600)] hover:underline"
+                  >
+                    Manage
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      <section className="flex flex-col gap-3 border-t border-zinc-200 pt-6 dark:border-zinc-800">
-        <h2 className="text-lg font-medium">New tenant</h2>
+      <section className="card flex flex-col gap-3 p-5">
+        <h2 className="text-lg font-semibold">New tenant</h2>
         <CreateTenantForm />
       </section>
     </main>

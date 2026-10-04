@@ -36,11 +36,15 @@ export function TenantAdminPanel({
   }
 
   return (
-    <div className="flex flex-col gap-8">
-      {error && <p className="text-sm text-red-600">{error}</p>}
+    <div className="flex flex-col gap-6">
+      {error && (
+        <p className="card p-3 text-sm text-[var(--color-danger-600)]">
+          {error}
+        </p>
+      )}
 
-      <section className="flex flex-col gap-2">
-        <h2 className="text-lg font-medium">Status</h2>
+      <section className="card flex flex-col gap-2 p-5">
+        <h2 className="text-lg font-semibold">Status</h2>
         <button
           onClick={() =>
             run(() =>
@@ -51,7 +55,9 @@ export function TenantAdminPanel({
             )
           }
           disabled={loading}
-          className="self-start rounded border border-zinc-300 px-3 py-2 text-sm disabled:opacity-50 dark:border-zinc-700"
+          className={`btn self-start ${
+            tenant.status === 'ACTIVE' ? 'btn-danger' : 'btn-secondary'
+          }`}
         >
           {tenant.status === 'ACTIVE' ? 'Suspend tenant' : 'Reactivate tenant'}
         </button>
@@ -67,24 +73,24 @@ export function TenantAdminPanel({
       />
       <PaymentForm tenantId={tenant.id} loading={loading} run={run} />
 
-      <section className="flex flex-col gap-2 border-t border-zinc-200 pt-6 dark:border-zinc-800">
-        <h2 className="text-lg font-medium">Payment history</h2>
+      <section className="card flex flex-col gap-2 p-5">
+        <h2 className="text-lg font-semibold">Payment history</h2>
         {payments.length === 0 ? (
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="text-sm text-[var(--muted)]">
             No payments recorded yet.
           </p>
         ) : (
-          <ul className="text-sm">
+          <ul className="flex flex-col text-sm">
             {payments.map((payment) => (
               <li
                 key={payment.id}
-                className="flex justify-between border-t border-zinc-200 py-1 dark:border-zinc-800"
+                className="flex justify-between border-t border-[var(--border)] py-2 first:border-t-0 first:pt-0"
               >
                 <span>
                   {payment.amount.toFixed(2)} via {payment.paymentMethod} (
                   {payment.referenceNumber})
                 </span>
-                <span className="text-zinc-500 dark:text-zinc-400">
+                <span className="text-[var(--muted)]">
                   {payment.periodStart.slice(0, 10)} &rarr;{' '}
                   {payment.periodEnd.slice(0, 10)}
                 </span>
@@ -116,22 +122,18 @@ function PlanForm({
   }
 
   return (
-    <section className="flex flex-col gap-2 border-t border-zinc-200 pt-6 dark:border-zinc-800">
-      <h2 className="text-lg font-medium">Plan</h2>
+    <section className="card flex flex-col gap-2 p-5">
+      <h2 className="text-lg font-semibold">Plan</h2>
       <form onSubmit={handleSubmit} className="flex items-end gap-2">
         <select
           value={plan}
           onChange={(event) => setPlan(event.target.value as 'TRIAL' | 'PAID')}
-          className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          className="input w-auto text-sm"
         >
           <option value="TRIAL">Trial</option>
           <option value="PAID">Paid</option>
         </select>
-        <button
-          type="submit"
-          disabled={loading}
-          className="rounded bg-zinc-900 px-3 py-2 text-sm text-white disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900"
-        >
+        <button type="submit" disabled={loading} className="btn btn-primary">
           Save plan
         </button>
       </form>
@@ -160,11 +162,11 @@ function ExpiryForm({
   }
 
   return (
-    <section className="flex flex-col gap-2 border-t border-zinc-200 pt-6 dark:border-zinc-800">
-      <h2 className="text-lg font-medium">
+    <section className="card flex flex-col gap-2 p-5">
+      <h2 className="text-lg font-semibold">
         {tenant.plan === 'TRIAL' ? 'Trial end date' : 'Subscription end date'}
       </h2>
-      <p className="text-sm text-zinc-600 dark:text-zinc-400">
+      <p className="text-sm text-[var(--muted)]">
         Manual adjustment, no payment record (e.g. a goodwill extension).
       </p>
       <form onSubmit={handleSubmit} className="flex items-end gap-2">
@@ -173,13 +175,9 @@ function ExpiryForm({
           required
           value={date}
           onChange={(event) => setDate(event.target.value)}
-          className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          className="input w-auto text-sm"
         />
-        <button
-          type="submit"
-          disabled={loading}
-          className="rounded bg-zinc-900 px-3 py-2 text-sm text-white disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900"
-        >
+        <button type="submit" disabled={loading} className="btn btn-primary">
           Save date
         </button>
       </form>
@@ -219,8 +217,8 @@ function InviteAdminForm({
   }
 
   return (
-    <section className="flex flex-col gap-2 border-t border-zinc-200 pt-6 dark:border-zinc-800">
-      <h2 className="text-lg font-medium">Invite an admin</h2>
+    <section className="card flex flex-col gap-2 p-5">
+      <h2 className="text-lg font-semibold">Invite an admin</h2>
       <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-2">
         <input
           type="text"
@@ -228,7 +226,7 @@ function InviteAdminForm({
           placeholder="Name"
           value={name}
           onChange={(event) => setName(event.target.value)}
-          className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          className="input w-auto flex-1 text-sm"
         />
         <input
           type="email"
@@ -236,19 +234,15 @@ function InviteAdminForm({
           placeholder="Email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          className="input w-auto flex-1 text-sm"
         />
-        <button
-          type="submit"
-          disabled={loading}
-          className="rounded bg-zinc-900 px-3 py-2 text-sm text-white disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900"
-        >
+        <button type="submit" disabled={loading} className="btn btn-primary">
           Invite
         </button>
       </form>
       {resetLink && (
-        <div className="rounded border border-zinc-300 p-3 text-sm dark:border-zinc-700">
-          <p className="mb-1 text-zinc-600 dark:text-zinc-400">
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--color-brand-50)] p-3 text-sm">
+          <p className="mb-1 text-[var(--muted)]">
             No email is sent automatically — share this one-time password-setup
             link:
           </p>
@@ -293,8 +287,8 @@ function PaymentForm({
   }
 
   return (
-    <section className="flex flex-col gap-2 border-t border-zinc-200 pt-6 dark:border-zinc-800">
-      <h2 className="text-lg font-medium">Record a subscription payment</h2>
+    <section className="card flex flex-col gap-2 p-5">
+      <h2 className="text-lg font-semibold">Record a subscription payment</h2>
       <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-2">
         <input
           type="number"
@@ -304,12 +298,12 @@ function PaymentForm({
           placeholder="Amount"
           value={amount}
           onChange={(event) => setAmount(event.target.value)}
-          className="w-28 rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          className="input w-28 text-sm"
         />
         <select
           value={paymentMethod}
           onChange={(event) => setPaymentMethod(event.target.value)}
-          className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          className="input w-auto text-sm"
         >
           <option value="UPI">UPI</option>
           <option value="BANK_TRANSFER">Bank transfer</option>
@@ -322,33 +316,29 @@ function PaymentForm({
           placeholder="Reference number"
           value={referenceNumber}
           onChange={(event) => setReferenceNumber(event.target.value)}
-          className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          className="input w-auto flex-1 text-sm"
         />
-        <label className="flex flex-col gap-1 text-xs text-zinc-500 dark:text-zinc-400">
+        <label className="flex flex-col gap-1 text-xs font-medium text-[var(--muted)]">
           Period start
           <input
             type="date"
             required
             value={periodStart}
             onChange={(event) => setPeriodStart(event.target.value)}
-            className="rounded border border-zinc-300 px-3 py-2 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+            className="input text-sm"
           />
         </label>
-        <label className="flex flex-col gap-1 text-xs text-zinc-500 dark:text-zinc-400">
+        <label className="flex flex-col gap-1 text-xs font-medium text-[var(--muted)]">
           Period end
           <input
             type="date"
             required
             value={periodEnd}
             onChange={(event) => setPeriodEnd(event.target.value)}
-            className="rounded border border-zinc-300 px-3 py-2 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+            className="input text-sm"
           />
         </label>
-        <button
-          type="submit"
-          disabled={loading}
-          className="rounded bg-zinc-900 px-3 py-2 text-sm text-white disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900"
-        >
+        <button type="submit" disabled={loading} className="btn btn-primary">
           Record payment
         </button>
       </form>

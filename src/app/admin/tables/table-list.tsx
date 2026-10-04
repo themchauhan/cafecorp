@@ -37,13 +37,13 @@ function TableRow({ table }: { table: CafeTable }) {
 
   return (
     <>
-      <tr className="border-t border-zinc-200 dark:border-zinc-800">
+      <tr className="border-t border-[var(--border)]">
         <td className="py-2 pr-4">
           {editing ? (
             <input
               value={label}
               onChange={(event) => setLabel(event.target.value)}
-              className="rounded border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+              className="input w-auto"
             />
           ) : (
             table.label
@@ -55,7 +55,7 @@ function TableRow({ table }: { table: CafeTable }) {
             <button
               onClick={save}
               disabled={isPending}
-              className="underline underline-offset-4"
+              className="btn btn-sm btn-secondary"
             >
               Save
             </button>
@@ -63,7 +63,7 @@ function TableRow({ table }: { table: CafeTable }) {
             <button
               onClick={() => setEditing(true)}
               disabled={isPending}
-              className="underline underline-offset-4"
+              className="btn btn-sm btn-secondary"
             >
               Edit
             </button>
@@ -73,7 +73,7 @@ function TableRow({ table }: { table: CafeTable }) {
           <button
             onClick={toggleActive}
             disabled={isPending}
-            className="underline underline-offset-4 disabled:opacity-50"
+            className={`btn btn-sm ${table.active ? 'btn-danger' : 'btn-secondary'}`}
           >
             {table.active ? 'Deactivate' : 'Activate'}
           </button>
@@ -81,7 +81,10 @@ function TableRow({ table }: { table: CafeTable }) {
       </tr>
       {error && (
         <tr>
-          <td colSpan={4} className="pb-2 text-sm text-red-600">
+          <td
+            colSpan={4}
+            className="pb-2 text-sm text-[var(--color-danger-600)]"
+          >
             {error}
           </td>
         </tr>
@@ -92,26 +95,26 @@ function TableRow({ table }: { table: CafeTable }) {
 
 export function TableList({ tables }: { tables: CafeTable[] }) {
   if (tables.length === 0) {
-    return (
-      <p className="text-sm text-zinc-600 dark:text-zinc-400">No tables yet.</p>
-    );
+    return <p className="text-sm text-[var(--muted)]">No tables yet.</p>;
   }
 
   return (
-    <table className="w-full text-left text-sm">
-      <thead className="text-zinc-500 dark:text-zinc-400">
-        <tr>
-          <th className="py-1 pr-4">Label</th>
-          <th className="py-1 pr-4">Status</th>
-          <th className="py-1 pr-4" />
-          <th className="py-1" />
-        </tr>
-      </thead>
-      <tbody>
-        {tables.map((table) => (
-          <TableRow key={table.id} table={table} />
-        ))}
-      </tbody>
-    </table>
+    <div className="card p-4">
+      <table className="w-full text-left text-sm">
+        <thead className="text-[var(--muted)]">
+          <tr>
+            <th className="py-1 pr-4">Label</th>
+            <th className="py-1 pr-4">Status</th>
+            <th className="py-1 pr-4" />
+            <th className="py-1" />
+          </tr>
+        </thead>
+        <tbody>
+          {tables.map((table) => (
+            <TableRow key={table.id} table={table} />
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }

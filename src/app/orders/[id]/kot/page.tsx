@@ -54,22 +54,24 @@ export default async function KotPage({
     : null;
 
   return (
-    <main className="mx-auto flex w-full max-w-sm flex-1 flex-col gap-4 px-4 py-16">
+    <main className="mx-auto flex w-full max-w-sm flex-1 flex-col gap-4 px-4 py-8">
       <div className="flex items-center justify-between print:hidden">
-        <h1 className="text-2xl font-semibold tracking-tight">KOT</h1>
+        <h1 className="text-2xl font-bold tracking-tight">KOT</h1>
         <PrintButton />
       </div>
 
-      {/* No prices anywhere below — this is what the kitchen sees. */}
-      <div className="flex flex-col gap-2 border border-zinc-300 p-4 text-sm dark:border-zinc-700">
+      {/* No prices anywhere below — this is what the kitchen sees.
+          Plain black-on-white regardless of screen: this prints on
+          thermal/receipt paper, where colored backgrounds don't help. */}
+      <div className="flex flex-col gap-2 border border-zinc-300 p-4 text-sm">
         <p className="font-medium">
           {order.orderType.replace('_', '-')}
           {tableLabel ? ` · ${tableLabel}` : ''}
         </p>
-        <p className="text-zinc-500 dark:text-zinc-400">
+        <p className="text-zinc-500">
           {order.kotSentAt ? new Date(order.kotSentAt).toLocaleString() : ''}
         </p>
-        <ul className="flex flex-col gap-1 border-t border-zinc-300 pt-2 dark:border-zinc-700">
+        <ul className="flex flex-col gap-1 border-t border-zinc-300 pt-2">
           {order.items.map((item, index) => (
             <li key={index}>
               {item.quantity} &times; {item.name}

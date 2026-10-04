@@ -34,7 +34,7 @@ export function CreateTenantForm() {
         placeholder="Cafe name"
         value={name}
         onChange={(event) => setName(event.target.value)}
-        className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+        className="input w-auto flex-1 text-sm"
       />
       <input
         type="tel"
@@ -42,7 +42,7 @@ export function CreateTenantForm() {
         placeholder="Phone"
         value={phone}
         onChange={(event) => setPhone(event.target.value)}
-        className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+        className="input w-auto flex-1 text-sm"
       />
       <input
         type="email"
@@ -50,24 +50,22 @@ export function CreateTenantForm() {
         placeholder="Owner email"
         value={email}
         onChange={(event) => setEmail(event.target.value)}
-        className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+        className="input w-auto flex-1 text-sm"
       />
       <select
         value={plan}
         onChange={(event) => setPlan(event.target.value as 'TRIAL' | 'PAID')}
-        className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+        className="input w-auto text-sm"
       >
         <option value="TRIAL">Trial (14 days)</option>
         <option value="PAID">Paid</option>
       </select>
-      <button
-        type="submit"
-        disabled={loading}
-        className="rounded bg-zinc-900 px-3 py-2 text-sm text-white disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900"
-      >
+      <button type="submit" disabled={loading} className="btn btn-primary">
         {loading ? 'Creating…' : 'Create tenant'}
       </button>
-      {error && <p className="w-full text-sm text-red-600">{error}</p>}
+      {error && (
+        <p className="w-full text-sm text-[var(--color-danger-600)]">{error}</p>
+      )}
     </form>
   );
 }

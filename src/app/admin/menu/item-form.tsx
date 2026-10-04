@@ -36,18 +36,21 @@ export function ItemForm({ categories }: { categories: Category[] }) {
 
   if (categories.length === 0) {
     return (
-      <p className="text-sm text-zinc-600 dark:text-zinc-400">
+      <p className="card p-6 text-sm text-[var(--muted)]">
         Add a category first before adding menu items.
       </p>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-2">
+    <form
+      onSubmit={handleSubmit}
+      className="card flex flex-wrap items-end gap-3 p-4"
+    >
       <select
         value={categoryId}
         onChange={(event) => setCategoryId(event.target.value)}
-        className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+        className="input w-auto"
       >
         {categories.map((category) => (
           <option key={category.id} value={category.id}>
@@ -61,7 +64,7 @@ export function ItemForm({ categories }: { categories: Category[] }) {
         placeholder="Item name"
         value={name}
         onChange={(event) => setName(event.target.value)}
-        className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+        className="input w-48"
       />
       <input
         type="number"
@@ -71,13 +74,14 @@ export function ItemForm({ categories }: { categories: Category[] }) {
         placeholder="Price"
         value={price}
         onChange={(event) => setPrice(event.target.value)}
-        className="w-28 rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+        className="input w-28"
       />
-      <label className="flex items-center gap-1 text-sm">
+      <label className="flex items-center gap-2 text-sm font-medium">
         <input
           type="checkbox"
           checked={vegFlag}
           onChange={(event) => setVegFlag(event.target.checked)}
+          className="h-4 w-4"
         />
         Veg
       </label>
@@ -86,16 +90,14 @@ export function ItemForm({ categories }: { categories: Category[] }) {
         placeholder="Description (optional)"
         value={description}
         onChange={(event) => setDescription(event.target.value)}
-        className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+        className="input w-56"
       />
-      <button
-        type="submit"
-        disabled={loading}
-        className="rounded bg-zinc-900 px-3 py-2 text-sm text-white disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900"
-      >
+      <button type="submit" disabled={loading} className="btn btn-primary">
         {loading ? 'Adding…' : 'Add item'}
       </button>
-      {error && <p className="w-full text-sm text-red-600">{error}</p>}
+      {error && (
+        <p className="w-full text-sm text-[var(--color-danger-600)]">{error}</p>
+      )}
     </form>
   );
 }

@@ -45,7 +45,7 @@ export default async function EditCategoryPage({
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-1 flex-col gap-4 px-4 py-16">
-      <h1 className="text-2xl font-semibold tracking-tight">Edit category</h1>
+      <h1 className="text-2xl font-bold tracking-tight">Edit category</h1>
       <EditCategoryForm category={category} />
     </main>
   );

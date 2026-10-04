@@ -85,105 +85,114 @@ export default async function ReportsPage({
 
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-4 py-16">
-      <h1 className="text-2xl font-semibold tracking-tight">Reports</h1>
+      <h1 className="text-2xl font-bold tracking-tight">Reports</h1>
 
-      <form method="GET" className="flex flex-wrap items-end gap-2 text-sm">
-        <label className="flex flex-col gap-1">
+      <form
+        method="GET"
+        className="card flex flex-wrap items-end gap-3 p-4 text-sm"
+      >
+        <label className="flex flex-col gap-1 font-medium text-[var(--muted)]">
           From
           <input
             type="date"
             name="from"
             defaultValue={fromKey}
-            className="rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
+            className="input"
           />
         </label>
-        <label className="flex flex-col gap-1">
+        <label className="flex flex-col gap-1 font-medium text-[var(--muted)]">
           To
-          <input
-            type="date"
-            name="to"
-            defaultValue={toKey}
-            className="rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
-          />
+          <input type="date" name="to" defaultValue={toKey} className="input" />
         </label>
-        <button
-          type="submit"
-          className="rounded bg-zinc-900 px-3 py-2 text-white dark:bg-zinc-50 dark:text-zinc-900"
-        >
+        <button type="submit" className="btn btn-primary">
           Update
         </button>
       </form>
 
-      <section className="flex flex-col gap-2">
-        <h2 className="text-lg font-medium">
+      <section className="card flex flex-col gap-2 p-5">
+        <h2 className="text-lg font-semibold">
           Collection{' '}
           {fromKey === toKey ? `on ${fromKey}` : `from ${fromKey} to ${toKey}`}
         </h2>
-        <p className="text-2xl font-semibold">{report.grandTotal.toFixed(2)}</p>
+        <p className="text-2xl font-bold text-[var(--color-brand-600)]">
+          {report.grandTotal.toFixed(2)}
+        </p>
         {modeRows.length === 0 ? (
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="text-sm text-[var(--muted)]">
             No billed orders in range.
           </p>
         ) : (
-          <ul className="text-sm">
+          <ul className="flex flex-col gap-1 text-sm">
             {modeRows.map(([mode, amount]) => (
-              <li key={mode} className="flex justify-between">
+              <li
+                key={mode}
+                className="flex justify-between border-t border-[var(--border)] py-1.5 first:border-t-0 first:pt-0"
+              >
                 <span>{mode}</span>
-                <span>{amount.toFixed(2)}</span>
+                <span className="font-semibold">{amount.toFixed(2)}</span>
               </li>
             ))}
           </ul>
         )}
       </section>
 
-      <section className="flex flex-col gap-2 border-t border-zinc-200 pt-6 dark:border-zinc-800">
-        <h2 className="text-lg font-medium">By staff</h2>
+      <section className="card flex flex-col gap-2 p-5">
+        <h2 className="text-lg font-semibold">By staff</h2>
         {staffRows.length === 0 ? (
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="text-sm text-[var(--muted)]">
             No billed orders in range.
           </p>
         ) : (
-          <ul className="text-sm">
+          <ul className="flex flex-col gap-1 text-sm">
             {staffRows.map((row) => (
-              <li key={row.uid} className="flex justify-between">
+              <li
+                key={row.uid}
+                className="flex justify-between border-t border-[var(--border)] py-1.5 first:border-t-0 first:pt-0"
+              >
                 <span>{row.name}</span>
-                <span>{row.amount.toFixed(2)}</span>
+                <span className="font-semibold">{row.amount.toFixed(2)}</span>
               </li>
             ))}
           </ul>
         )}
       </section>
 
-      <section className="flex flex-col gap-2 border-t border-zinc-200 pt-6 dark:border-zinc-800">
-        <h2 className="text-lg font-medium">Top-selling items</h2>
+      <section className="card flex flex-col gap-2 p-5">
+        <h2 className="text-lg font-semibold">Top-selling items</h2>
         {topItems.length === 0 ? (
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="text-sm text-[var(--muted)]">
             No billed orders in range.
           </p>
         ) : (
-          <ul className="text-sm">
+          <ul className="flex flex-col gap-1 text-sm">
             {topItems.map((item) => (
-              <li key={item.id} className="flex justify-between">
+              <li
+                key={item.id}
+                className="flex justify-between border-t border-[var(--border)] py-1.5 first:border-t-0 first:pt-0"
+              >
                 <span>{item.name}</span>
-                <span>{item.quantity}</span>
+                <span className="font-semibold">{item.quantity}</span>
               </li>
             ))}
           </ul>
         )}
       </section>
 
-      <section className="flex flex-col gap-2 border-t border-zinc-200 pt-6 dark:border-zinc-800">
-        <h2 className="text-lg font-medium">By category</h2>
+      <section className="card flex flex-col gap-2 p-5">
+        <h2 className="text-lg font-semibold">By category</h2>
         {categoryRows.length === 0 ? (
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="text-sm text-[var(--muted)]">
             No billed orders in range.
           </p>
         ) : (
-          <ul className="text-sm">
+          <ul className="flex flex-col gap-1 text-sm">
             {categoryRows.map((row) => (
-              <li key={row.id} className="flex justify-between">
+              <li
+                key={row.id}
+                className="flex justify-between border-t border-[var(--border)] py-1.5 first:border-t-0 first:pt-0"
+              >
                 <span>{row.name}</span>
-                <span>{row.amount.toFixed(2)}</span>
+                <span className="font-semibold">{row.amount.toFixed(2)}</span>
               </li>
             ))}
           </ul>

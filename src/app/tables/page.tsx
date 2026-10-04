@@ -34,9 +34,9 @@ export default async function TableStatusPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-4 px-4 py-16">
-      <h1 className="text-2xl font-semibold tracking-tight">Tables</h1>
+      <h1 className="text-2xl font-bold tracking-tight">Tables</h1>
       {tables.length === 0 ? (
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="card p-6 text-sm text-[var(--muted)]">
           No active tables. An admin can add them under Admin &rarr; Tables.
         </p>
       ) : (

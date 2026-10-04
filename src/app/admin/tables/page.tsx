@@ -35,7 +35,7 @@ export default async function TablesAdminPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-4 py-16">
-      <h1 className="text-2xl font-semibold tracking-tight">Tables</h1>
+      <h1 className="text-2xl font-bold tracking-tight">Tables</h1>
       <TableList tables={tables} />
       <TableForm />
     </main>

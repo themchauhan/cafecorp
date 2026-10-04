@@ -23,10 +23,12 @@ export default async function MfaPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-1 flex-col gap-6 px-4 py-16">
-      <h1 className="text-2xl font-semibold tracking-tight">
+      <h1 className="text-2xl font-bold tracking-tight">
         Two-factor authentication
       </h1>
-      <MfaPanel initiallyEnabled={enabled} />
+      <div className="card p-6">
+        <MfaPanel initiallyEnabled={enabled} />
+      </div>
     </main>
   );
 }

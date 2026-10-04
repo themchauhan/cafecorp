@@ -36,8 +36,8 @@ export function InviteForm() {
   }
 
   return (
-    <div className="flex flex-col gap-3 border-t border-zinc-200 pt-6 dark:border-zinc-800">
-      <h2 className="text-lg font-medium">Invite staff</h2>
+    <div className="card flex flex-col gap-3 p-4">
+      <h2 className="text-lg font-bold">Invite staff</h2>
       <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-2">
         <input
           type="text"
@@ -45,7 +45,7 @@ export function InviteForm() {
           placeholder="Name"
           value={name}
           onChange={(event) => setName(event.target.value)}
-          className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          className="input w-auto"
         />
         <input
           type="email"
@@ -53,28 +53,26 @@ export function InviteForm() {
           placeholder="Email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          className="input w-auto"
         />
         <select
           value={role}
           onChange={(event) => setRole(event.target.value as 'ADMIN' | 'STAFF')}
-          className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          className="input w-auto"
         >
           <option value="STAFF">Staff</option>
           <option value="ADMIN">Admin</option>
         </select>
-        <button
-          type="submit"
-          disabled={loading}
-          className="rounded bg-zinc-900 px-3 py-2 text-sm text-white disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900"
-        >
+        <button type="submit" disabled={loading} className="btn btn-primary">
           {loading ? 'Inviting…' : 'Invite'}
         </button>
       </form>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <p className="text-sm text-[var(--color-danger-600)]">{error}</p>
+      )}
       {invited && (
-        <div className="rounded border border-zinc-300 p-3 text-sm dark:border-zinc-700">
-          <p className="mb-1 text-zinc-600 dark:text-zinc-400">
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--color-brand-50)] p-3 text-sm">
+          <p className="mb-1 text-[var(--muted)]">
             Invited <strong data-testid="invited-email">{invited.email}</strong>
             .{' '}
             {invited.emailSent ? (

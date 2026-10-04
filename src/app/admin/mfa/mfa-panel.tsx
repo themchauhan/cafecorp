@@ -60,18 +60,22 @@ export function MfaPanel({ initiallyEnabled }: { initiallyEnabled: boolean }) {
   if (enabled) {
     return (
       <div className="flex flex-col gap-3">
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          Two-factor authentication is <strong>on</strong>. You&apos;ll be asked
-          for a 6-digit code from your authenticator app on every login.
+        <p className="text-sm text-[var(--muted)]">
+          Two-factor authentication is{' '}
+          <strong className="text-[var(--foreground)]">on</strong>. You&apos;ll
+          be asked for a 6-digit code from your authenticator app on every
+          login.
         </p>
         <button
           onClick={handleTurnOff}
           disabled={loading}
-          className="self-start rounded border border-zinc-300 px-3 py-1.5 text-sm disabled:opacity-50 dark:border-zinc-700"
+          className="btn btn-danger self-start"
         >
           Turn off
         </button>
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && (
+          <p className="text-sm text-[var(--color-danger-600)]">{error}</p>
+        )}
       </div>
     );
   }
@@ -79,7 +83,7 @@ export function MfaPanel({ initiallyEnabled }: { initiallyEnabled: boolean }) {
   if (enrollment) {
     return (
       <form onSubmit={handleConfirm} className="flex flex-col gap-3">
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="text-sm text-[var(--muted)]">
           Scan this with your authenticator app, then enter the 6-digit code it
           shows.
         </p>
@@ -89,8 +93,9 @@ export function MfaPanel({ initiallyEnabled }: { initiallyEnabled: boolean }) {
           width={200}
           height={200}
           unoptimized
+          className="rounded-xl border border-[var(--border)]"
         />
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-[var(--muted)]">
           Can&apos;t scan? Enter this key manually:{' '}
           <code>{enrollment.secret}</code>
         </p>
@@ -102,13 +107,15 @@ export function MfaPanel({ initiallyEnabled }: { initiallyEnabled: boolean }) {
           placeholder="6-digit code"
           value={code}
           onChange={(event) => setCode(event.target.value)}
-          className="rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
+          className="input text-center text-lg tracking-widest"
         />
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && (
+          <p className="text-sm text-[var(--color-danger-600)]">{error}</p>
+        )}
         <button
           type="submit"
           disabled={loading}
-          className="self-start rounded bg-zinc-900 px-3 py-2 text-sm text-white disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900"
+          className="btn btn-primary self-start"
         >
           {loading ? 'Verifying…' : 'Confirm'}
         </button>
@@ -118,17 +125,20 @@ export function MfaPanel({ initiallyEnabled }: { initiallyEnabled: boolean }) {
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-sm text-zinc-600 dark:text-zinc-400">
-        Two-factor authentication is <strong>off</strong>.
+      <p className="text-sm text-[var(--muted)]">
+        Two-factor authentication is{' '}
+        <strong className="text-[var(--foreground)]">off</strong>.
       </p>
       <button
         onClick={handleEnroll}
         disabled={loading}
-        className="self-start rounded bg-zinc-900 px-3 py-2 text-sm text-white disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900"
+        className="btn btn-primary self-start"
       >
         {loading ? 'Starting…' : 'Set up two-factor authentication'}
       </button>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <p className="text-sm text-[var(--color-danger-600)]">{error}</p>
+      )}
     </div>
   );
 }

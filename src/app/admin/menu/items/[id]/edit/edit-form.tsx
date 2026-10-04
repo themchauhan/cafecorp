@@ -43,11 +43,11 @@ export function EditItemForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+    <form onSubmit={handleSubmit} className="card flex flex-col gap-4 p-6">
       <select
         value={categoryId}
         onChange={(event) => setCategoryId(event.target.value)}
-        className="rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
+        className="input"
       >
         {categories.map((category) => (
           <option key={category.id} value={category.id}>
@@ -60,7 +60,7 @@ export function EditItemForm({
         required
         value={name}
         onChange={(event) => setName(event.target.value)}
-        className="rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
+        className="input"
       />
       <input
         type="number"
@@ -69,13 +69,14 @@ export function EditItemForm({
         step="0.01"
         value={price}
         onChange={(event) => setPrice(event.target.value)}
-        className="rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
+        className="input"
       />
-      <label className="flex items-center gap-1 text-sm">
+      <label className="flex items-center gap-2 text-sm font-medium">
         <input
           type="checkbox"
           checked={vegFlag}
           onChange={(event) => setVegFlag(event.target.checked)}
+          className="h-4 w-4"
         />
         Veg
       </label>
@@ -84,13 +85,15 @@ export function EditItemForm({
         placeholder="Description"
         value={description}
         onChange={(event) => setDescription(event.target.value)}
-        className="rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
+        className="input"
       />
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <p className="text-sm text-[var(--color-danger-600)]">{error}</p>
+      )}
       <button
         type="submit"
         disabled={loading}
-        className="self-start rounded bg-zinc-900 px-3 py-2 text-sm text-white disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900"
+        className="btn btn-primary self-start"
       >
         {loading ? 'Saving…' : 'Save'}
       </button>

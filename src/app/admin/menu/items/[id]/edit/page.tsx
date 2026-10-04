@@ -53,7 +53,7 @@ export default async function EditItemPage({
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-1 flex-col gap-4 px-4 py-16">
-      <h1 className="text-2xl font-semibold tracking-tight">Edit menu item</h1>
+      <h1 className="text-2xl font-bold tracking-tight">Edit menu item</h1>
       <EditItemForm item={item} categories={categories} />
     </main>
   );
