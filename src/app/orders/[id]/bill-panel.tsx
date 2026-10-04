@@ -59,14 +59,16 @@ export function BillPanel({
   }
 
   return (
-    <section className="flex flex-col gap-4 border-t border-zinc-200 pt-6 dark:border-zinc-800">
-      <div className="text-sm">
-        <p>Paid so far: {paid.toFixed(2)}</p>
-        <p className="font-medium">Balance due: {balance.toFixed(2)}</p>
+    <section className="card flex flex-col gap-4 p-4">
+      <div>
+        <p className="text-sm text-[var(--muted)]">
+          Paid so far: {paid.toFixed(2)}
+        </p>
+        <p className="text-lg font-bold">Balance due: {balance.toFixed(2)}</p>
       </div>
 
       {order.payments.length > 0 && (
-        <ul className="text-sm text-zinc-600 dark:text-zinc-400">
+        <ul className="text-sm text-[var(--muted)]">
           {order.payments.map((payment, index) => (
             <li key={index}>
               {payment.amount.toFixed(2)} via {payment.mode}
@@ -84,14 +86,14 @@ export function BillPanel({
           placeholder="Amount"
           value={amount}
           onChange={(event) => setAmount(event.target.value)}
-          className="w-28 rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          className="input w-32"
         />
         <select
           value={mode}
           onChange={(event) =>
             setMode(event.target.value as OrderPayment['mode'])
           }
-          className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          className="input w-auto"
         >
           {PAYMENT_MODES.map((m) => (
             <option key={m} value={m}>
@@ -99,16 +101,14 @@ export function BillPanel({
             </option>
           ))}
         </select>
-        <button
-          type="submit"
-          disabled={loading}
-          className="rounded bg-zinc-900 px-3 py-2 text-sm text-white disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900"
-        >
+        <button type="submit" disabled={loading} className="btn btn-primary">
           {loading ? 'Recording…' : 'Record payment'}
         </button>
       </form>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <p className="text-sm text-[var(--color-danger-600)]">{error}</p>
+      )}
 
       {showCancel ? (
         <form
@@ -121,20 +121,16 @@ export function BillPanel({
             placeholder="Reason for cancelling"
             value={cancelReason}
             onChange={(event) => setCancelReason(event.target.value)}
-            className="flex-1 rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            className="input flex-1"
           />
-          <button
-            type="submit"
-            disabled={loading}
-            className="rounded border border-red-600 px-3 py-2 text-sm text-red-600 disabled:opacity-50"
-          >
+          <button type="submit" disabled={loading} className="btn btn-danger">
             Confirm cancel
           </button>
         </form>
       ) : (
         <button
           onClick={() => setShowCancel(true)}
-          className="self-start text-sm text-red-600 underline underline-offset-4"
+          className="btn btn-danger self-start"
         >
           Cancel order
         </button>

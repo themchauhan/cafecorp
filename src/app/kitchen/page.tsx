@@ -23,13 +23,15 @@ export default async function KitchenPage() {
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-4 px-4 py-16">
-      <h1 className="text-2xl font-semibold tracking-tight">
-        Kitchen &mdash; current tickets
-      </h1>
-      <p className="text-sm text-zinc-600 dark:text-zinc-400">
-        On-screen fallback for cafes without a receipt printer. Updates live.
-      </p>
+    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-4 px-4 py-8">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">
+          Kitchen &mdash; current tickets
+        </h1>
+        <p className="text-sm text-[var(--muted)]">
+          On-screen fallback for cafes without a receipt printer. Updates live.
+        </p>
+      </div>
       <KitchenBoard tenantId={profile.tenantId} />
     </main>
   );

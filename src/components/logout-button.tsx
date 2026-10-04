@@ -22,10 +22,7 @@ export function LogoutButton() {
   }
 
   return (
-    <button
-      onClick={handleLogout}
-      className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
-    >
+    <button onClick={handleLogout} className="btn btn-sm btn-secondary">
       Log out
     </button>
   );

@@ -72,64 +72,78 @@ export default function LoginPage() {
   if (mfaRequired) {
     return (
       <main className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-4 px-4">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Authenticator code
-        </h1>
-        <form onSubmit={handleMfaSubmit} className="flex flex-col gap-3">
-          <input
-            type="text"
-            inputMode="numeric"
-            required
-            autoFocus
-            placeholder="6-digit code"
-            value={totpCode}
-            onChange={(event) => setTotpCode(event.target.value)}
-            className="rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
-          />
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          <button
-            type="submit"
-            disabled={loading}
-            className="rounded bg-zinc-900 px-3 py-2 text-sm text-white disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900"
-          >
-            {loading ? 'Verifying…' : 'Verify'}
-          </button>
-        </form>
+        <div className="card flex flex-col gap-4 p-8">
+          <div>
+            <p className="text-lg font-bold text-[var(--color-brand-600)]">
+              CafeCorp
+            </p>
+            <h1 className="text-xl font-semibold tracking-tight">
+              Authenticator code
+            </h1>
+          </div>
+          <form onSubmit={handleMfaSubmit} className="flex flex-col gap-3">
+            <input
+              type="text"
+              inputMode="numeric"
+              required
+              autoFocus
+              placeholder="6-digit code"
+              value={totpCode}
+              onChange={(event) => setTotpCode(event.target.value)}
+              className="input text-center text-lg tracking-widest"
+            />
+            {error && (
+              <p className="text-sm text-[var(--color-danger-600)]">{error}</p>
+            )}
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn btn-primary"
+            >
+              {loading ? 'Verifying…' : 'Verify'}
+            </button>
+          </form>
+        </div>
       </main>
     );
   }
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-4 px-4">
-      <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
-      <form onSubmit={handlePasswordSubmit} className="flex flex-col gap-3">
-        <input
-          type="email"
-          required
-          autoComplete="email"
-          placeholder="Email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          className="rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
-        />
-        <input
-          type="password"
-          required
-          autoComplete="current-password"
-          placeholder="Password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          className="rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
-        />
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <button
-          type="submit"
-          disabled={loading}
-          className="rounded bg-zinc-900 px-3 py-2 text-sm text-white disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900"
-        >
-          {loading ? 'Signing in…' : 'Sign in'}
-        </button>
-      </form>
+      <div className="card flex flex-col gap-4 p-8">
+        <div>
+          <p className="text-lg font-bold text-[var(--color-brand-600)]">
+            CafeCorp
+          </p>
+          <h1 className="text-xl font-semibold tracking-tight">Sign in</h1>
+        </div>
+        <form onSubmit={handlePasswordSubmit} className="flex flex-col gap-3">
+          <input
+            type="email"
+            required
+            autoComplete="email"
+            placeholder="Email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            className="input"
+          />
+          <input
+            type="password"
+            required
+            autoComplete="current-password"
+            placeholder="Password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            className="input"
+          />
+          {error && (
+            <p className="text-sm text-[var(--color-danger-600)]">{error}</p>
+          )}
+          <button type="submit" disabled={loading} className="btn btn-primary">
+            {loading ? 'Signing in…' : 'Sign in'}
+          </button>
+        </form>
+      </div>
     </main>
   );
 }

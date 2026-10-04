@@ -50,38 +50,47 @@ export function KitchenBoard({ tenantId }: { tenantId: string }) {
   }, [tenantId]);
 
   if (orders === null) {
-    return <p className="text-sm text-zinc-600 dark:text-zinc-400">Loading…</p>;
+    return <p className="text-sm text-[var(--muted)]">Loading…</p>;
   }
 
   if (orders.length === 0) {
     return (
-      <p className="text-sm text-zinc-600 dark:text-zinc-400">
+      <p className="card p-6 text-sm text-[var(--muted)]">
         No tickets in the kitchen right now.
       </p>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {orders.map((order) => (
         <div
           key={order.id}
-          className="flex flex-col gap-2 rounded border border-zinc-300 p-4 text-sm dark:border-zinc-700"
+          className="card flex flex-col gap-3 border-t-4 border-t-[var(--color-warning-600)] p-4"
         >
-          <p className="font-medium">
-            {order.orderType.replace('_', '-')}
-            {order.tableId ? ` · Table ${order.tableId}` : ''}
-          </p>
-          <p className="text-zinc-500 dark:text-zinc-400">
-            {order.kotSentAt
-              ? new Date(order.kotSentAt).toLocaleTimeString()
-              : ''}
-          </p>
-          <ul className="flex flex-col gap-1">
+          <div className="flex items-center justify-between">
+            <p className="text-lg font-bold">
+              {order.orderType.replace('_', '-')}
+              {order.tableId ? ` · Table ${order.tableId}` : ''}
+            </p>
+            <span className="badge badge-kot">
+              {order.kotSentAt
+                ? new Date(order.kotSentAt).toLocaleTimeString()
+                : ''}
+            </span>
+          </div>
+          <ul className="flex flex-col gap-2 text-base">
             {order.items.map((item, index) => (
-              <li key={index}>
-                {item.quantity} &times; {item.name}
-                {item.notes ? ` (${item.notes})` : ''}
+              <li key={index} className="flex gap-2">
+                <span className="font-bold text-[var(--color-brand-600)]">
+                  {item.quantity}&times;
+                </span>
+                <span>
+                  {item.name}
+                  {item.notes ? (
+                    <span className="text-[var(--muted)]"> ({item.notes})</span>
+                  ) : null}
+                </span>
               </li>
             ))}
           </ul>

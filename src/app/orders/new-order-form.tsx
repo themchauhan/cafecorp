@@ -32,11 +32,14 @@ export function NewOrderForm({ activeTables }: { activeTables: CafeTable[] }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-2">
+    <form
+      onSubmit={handleSubmit}
+      className="card flex flex-wrap items-end gap-3 p-4"
+    >
       <select
         value={orderType}
         onChange={(event) => setOrderType(event.target.value as OrderType)}
-        className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+        className="input w-auto"
       >
         {ORDER_TYPES.map((type) => (
           <option key={type} value={type}>
@@ -46,14 +49,14 @@ export function NewOrderForm({ activeTables }: { activeTables: CafeTable[] }) {
       </select>
       {orderType === 'DINE_IN' &&
         (activeTables.length === 0 ? (
-          <p className="text-sm text-red-600">
+          <p className="text-sm text-[var(--color-danger-600)]">
             No active tables — add one first.
           </p>
         ) : (
           <select
             value={tableId}
             onChange={(event) => setTableId(event.target.value)}
-            className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            className="input w-auto"
           >
             {activeTables.map((table) => (
               <option key={table.id} value={table.id}>
@@ -67,11 +70,13 @@ export function NewOrderForm({ activeTables }: { activeTables: CafeTable[] }) {
         disabled={
           loading || (orderType === 'DINE_IN' && activeTables.length === 0)
         }
-        className="rounded bg-zinc-900 px-3 py-2 text-sm text-white disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900"
+        className="btn btn-primary"
       >
         {loading ? 'Starting…' : 'Start order'}
       </button>
-      {error && <p className="w-full text-sm text-red-600">{error}</p>}
+      {error && (
+        <p className="w-full text-sm text-[var(--color-danger-600)]">{error}</p>
+      )}
     </form>
   );
 }

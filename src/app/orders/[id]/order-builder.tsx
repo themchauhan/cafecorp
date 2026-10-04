@@ -82,27 +82,31 @@ export function OrderBuilder({
 
   return (
     <div className="flex flex-col gap-8">
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <p className="card border-[var(--color-danger-600)] p-3 text-sm text-[var(--color-danger-600)]">
+          {error}
+        </p>
+      )}
 
-      <section className="flex flex-col gap-4">
+      <section className="flex flex-col gap-5">
         {categories.map((category) => {
           const items = itemsByCategory.get(category.id) ?? [];
           if (items.length === 0) return null;
           return (
             <div key={category.id} className="flex flex-col gap-2">
-              <h2 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+              <h2 className="text-sm font-bold tracking-wide text-[var(--muted)] uppercase">
                 {category.name}
               </h2>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {items.map((item) => (
                   <button
                     key={item.id}
                     onClick={() => handleAdd(item.id)}
                     disabled={isPending}
-                    className="rounded border border-zinc-300 px-3 py-2 text-left text-sm disabled:opacity-50 dark:border-zinc-700"
+                    className="menu-item-tile"
                   >
-                    {item.name}
-                    <span className="ml-2 text-zinc-500 dark:text-zinc-400">
+                    <span className="font-semibold">{item.name}</span>
+                    <span className="text-[var(--color-brand-600)]">
                       {item.price.toFixed(2)}
                     </span>
                   </button>
@@ -113,43 +117,43 @@ export function OrderBuilder({
         })}
       </section>
 
-      <section className="flex flex-col gap-2 border-t border-zinc-200 pt-6 dark:border-zinc-800">
-        <h2 className="text-lg font-medium">Current order</h2>
+      <section className="card flex flex-col gap-3 p-4">
+        <h2 className="text-lg font-bold">Current order</h2>
         {order.items.length === 0 ? (
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            No items added yet.
-          </p>
+          <p className="text-sm text-[var(--muted)]">No items added yet.</p>
         ) : (
-          <ul className="flex flex-col gap-2 text-sm">
+          <ul className="flex flex-col gap-3">
             {order.items.map((item, index) => (
               <li
                 key={index}
-                className="flex items-center justify-between gap-2"
+                className="flex items-center justify-between gap-2 border-b border-[var(--border)] pb-3 last:border-0 last:pb-0"
               >
-                <span>{item.name}</span>
-                <span className="flex items-center gap-2">
+                <span className="font-medium">{item.name}</span>
+                <span className="flex items-center gap-3">
                   <button
                     onClick={() =>
                       handleQuantityChange(index, item.quantity - 1)
                     }
                     disabled={isPending}
                     aria-label={`Decrease ${item.name}`}
-                    className="rounded border border-zinc-300 px-2 disabled:opacity-50 dark:border-zinc-700"
+                    className="btn btn-icon btn-secondary"
                   >
                     &minus;
                   </button>
-                  <span>{item.quantity}</span>
+                  <span className="w-5 text-center font-semibold">
+                    {item.quantity}
+                  </span>
                   <button
                     onClick={() =>
                       handleQuantityChange(index, item.quantity + 1)
                     }
                     disabled={isPending}
                     aria-label={`Increase ${item.name}`}
-                    className="rounded border border-zinc-300 px-2 disabled:opacity-50 dark:border-zinc-700"
+                    className="btn btn-icon btn-secondary"
                   >
                     +
                   </button>
-                  <span className="w-16 text-right">
+                  <span className="w-16 text-right font-semibold">
                     {(item.priceSnapshot * item.quantity).toFixed(2)}
                   </span>
                 </span>
@@ -157,13 +161,14 @@ export function OrderBuilder({
             ))}
           </ul>
         )}
-        <p className="border-t border-zinc-200 pt-2 text-sm font-medium dark:border-zinc-800">
-          Total: {total.toFixed(2)}
+        <p className="flex items-baseline justify-between border-t border-[var(--border)] pt-3 text-lg font-bold">
+          <span>Total</span>
+          <span>{total.toFixed(2)}</span>
         </p>
         <button
           onClick={handleSendToKitchen}
           disabled={isPending || order.items.length === 0}
-          className="self-start rounded bg-zinc-900 px-3 py-2 text-sm text-white disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900"
+          className="btn btn-primary"
         >
           Send to kitchen
         </button>

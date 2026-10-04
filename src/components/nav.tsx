@@ -16,15 +16,17 @@ const NAV_LINKS = [
 
 export function Nav({ profile }: { profile: SessionProfile | null }) {
   return (
-    <header className="border-b border-zinc-200 print:hidden dark:border-zinc-800">
-      <nav className="mx-auto flex max-w-5xl items-center gap-6 px-4 py-3">
-        <span className="font-semibold tracking-tight">CafeCorp</span>
-        <ul className="flex flex-1 gap-4 text-sm text-zinc-600 dark:text-zinc-400">
+    <header className="border-b border-[var(--border)] bg-[var(--surface)] print:hidden">
+      <nav className="mx-auto flex max-w-6xl items-center gap-2 px-4">
+        <span className="py-3 pr-4 text-lg font-bold tracking-tight text-[var(--color-brand-600)]">
+          CafeCorp
+        </span>
+        <ul className="flex flex-1 items-center gap-1 overflow-x-auto text-sm font-medium text-[var(--muted)]">
           {NAV_LINKS.map((link) => (
             <li key={link.href}>
               <Link
                 href={link.href}
-                className="hover:text-zinc-900 dark:hover:text-zinc-50"
+                className="flex min-h-12 items-center rounded-lg px-3 hover:bg-[var(--color-brand-50)] hover:text-[var(--color-brand-600)]"
               >
                 {link.label}
               </Link>
@@ -32,12 +34,14 @@ export function Nav({ profile }: { profile: SessionProfile | null }) {
           ))}
         </ul>
         {profile ? (
-          <div className="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-400">
-            <span>{profile.role}</span>
+          <div className="flex items-center gap-3 pl-2 text-sm text-[var(--muted)]">
+            <span className="hidden font-semibold sm:inline">
+              {profile.role}
+            </span>
             <LogoutButton />
           </div>
         ) : (
-          <Link href="/login" className="text-sm hover:underline">
+          <Link href="/login" className="btn btn-sm btn-primary">
             Log in
           </Link>
         )}

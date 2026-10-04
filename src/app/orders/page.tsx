@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Forbidden } from '@/components/forbidden';
+import { StatusBadge } from '@/components/status-badge';
 import { adminDb } from '@/lib/firebase/admin';
 import {
   AuthError,
@@ -52,28 +53,28 @@ export default async function OrdersPage() {
   );
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-4 py-16">
+    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-4 py-8">
       <section className="flex flex-col gap-4">
-        <h1 className="text-2xl font-semibold tracking-tight">New order</h1>
+        <h1 className="text-2xl font-bold tracking-tight">New order</h1>
         <NewOrderForm activeTables={activeTables} />
       </section>
 
-      <section className="flex flex-col gap-3 border-t border-zinc-200 pt-8 dark:border-zinc-800">
-        <h2 className="text-lg font-medium">In progress</h2>
+      <section className="flex flex-col gap-3">
+        <h2 className="text-lg font-semibold">In progress</h2>
         {orders.length === 0 ? (
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="card p-6 text-sm text-[var(--muted)]">
             No open orders right now.
           </p>
         ) : (
-          <ul className="flex flex-col gap-2 text-sm">
+          <ul className="flex flex-col gap-3">
             {orders.map((order) => (
               <li key={order.id}>
                 <Link
                   href={`/orders/${order.id}`}
-                  className="flex items-center justify-between rounded border border-zinc-200 px-3 py-2 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+                  className="card flex min-h-16 items-center justify-between gap-2 px-4 py-3 hover:border-[var(--color-brand-500)]"
                 >
-                  <span>
-                    {order.orderType}
+                  <span className="font-medium">
+                    {order.orderType.replace('_', '-')}
                     {order.tableId
                       ? ` · ${tableLabel.get(order.tableId) ?? order.tableId}`
                       : ''}
@@ -81,9 +82,7 @@ export default async function OrdersPage() {
                     {order.items.length} item
                     {order.items.length === 1 ? '' : 's'}
                   </span>
-                  <span className="text-zinc-500 dark:text-zinc-400">
-                    {order.status}
-                  </span>
+                  <StatusBadge status={order.status} />
                 </Link>
               </li>
             ))}
