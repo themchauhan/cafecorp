@@ -6,6 +6,19 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  # Dummy values only (CLAUDE.md rule 6) — enough for the Next.js
+  # client bundle to build and for the Admin SDK to talk to the
+  # Firebase emulator, never a real project.
+  NEXT_PUBLIC_USE_FIREBASE_EMULATORS: 'true'
+  NEXT_PUBLIC_FIREBASE_API_KEY: 'test-api-key'
+  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: 'demo-project.firebaseapp.com'
+  NEXT_PUBLIC_FIREBASE_PROJECT_ID: 'demo-project'
+  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: 'demo-project.appspot.com'
+  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: '123456789'
+  NEXT_PUBLIC_FIREBASE_APP_ID: '1:123456789:web:abcdef'
+  FIREBASE_ADMIN_PROJECT_ID: 'demo-project'
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -26,13 +39,38 @@ jobs:
 
       - run: npm run format:check
       - run: npm run lint
-      - run: npm run typecheck
       - run: npm test
       - run: npm run test:rules
 
       - run: npx playwright install --with-deps chromium
 
+      # next build generates .next/types (e.g. the ambient LayoutProps
+      # type App Router routes use) — typecheck must run after this,
+      # not before, or `tsc --noEmit` fails on a fresh checkout with
+      # "Cannot find name 'LayoutProps'".
       - run: npm run build
+      - run: npm run typecheck
+
+      # Catches exactly the class of bug that broke production here:
+      # the build succeeding is not enough — firebase-admin's ESM/CJS
+      # crash only surfaced when an actual request hit the running
+      # server. Start the real production server and hit it.
+      - name: Smoke test the production server
+        run: |
+          npm run start -- -p 3100 &
+          SERVER_PID=$!
+          for i in $(seq 1 30); do
+            if curl -s -o /dev/null http://localhost:3100/; then break; fi
+            sleep 1
+          done
+          STATUS_ROOT=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3100/)
+          STATUS_LOGIN=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3100/login)
+          kill $SERVER_PID
+          echo "/ -> $STATUS_ROOT, /login -> $STATUS_LOGIN"
+          if [ "$STATUS_ROOT" != "307" ] || [ "$STATUS_LOGIN" != "200" ]; then
+            echo "Smoke test failed: expected / to be 307 and /login to be 200"
+            exit 1
+          fi
 
       - run: npm run test:e2e:ci
 
