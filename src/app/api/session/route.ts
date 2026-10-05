@@ -23,7 +23,15 @@ export async function POST(request: NextRequest) {
   let decoded;
   try {
     decoded = await adminAuth.verifyIdToken(parsed.data.idToken);
-  } catch {
+  } catch (err) {
+    console.error('DEBUG verifyIdToken failed', {
+      message: err instanceof Error ? err.message : err,
+      FIREBASE_AUTH_EMULATOR_HOST: process.env.FIREBASE_AUTH_EMULATOR_HOST,
+      FIRESTORE_EMULATOR_HOST: process.env.FIRESTORE_EMULATOR_HOST,
+      NEXT_PUBLIC_USE_FIREBASE_EMULATORS:
+        process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS,
+      FIREBASE_ADMIN_PROJECT_ID: process.env.FIREBASE_ADMIN_PROJECT_ID,
+    });
     return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
   }
 
