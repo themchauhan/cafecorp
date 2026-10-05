@@ -9,15 +9,22 @@ on:
 env:
   # Dummy values only (CLAUDE.md rule 6) — enough for the Next.js
   # client bundle to build and for the Admin SDK to talk to the
-  # Firebase emulator, never a real project.
+  # Firebase emulator, never a real project. The project id here MUST
+  # match .firebaserc's "default" project — the Auth emulator issues
+  # ID tokens with `aud` set to whatever project .firebaserc declares
+  # for the session, regardless of what NEXT_PUBLIC_FIREBASE_PROJECT_ID
+  # or FIREBASE_ADMIN_PROJECT_ID claim. A mismatch here makes every
+  # verifyIdToken() call fail with "incorrect aud claim" — this is not
+  # a secret or a real deploy target in this job, just a label the
+  # sandboxed emulator needs to agree with the app on.
   NEXT_PUBLIC_USE_FIREBASE_EMULATORS: 'true'
   NEXT_PUBLIC_FIREBASE_API_KEY: 'test-api-key'
-  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: 'demo-project.firebaseapp.com'
-  NEXT_PUBLIC_FIREBASE_PROJECT_ID: 'demo-project'
-  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: 'demo-project.appspot.com'
+  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: 'cafecorp-6187b.firebaseapp.com'
+  NEXT_PUBLIC_FIREBASE_PROJECT_ID: 'cafecorp-6187b'
+  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: 'cafecorp-6187b.appspot.com'
   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: '123456789'
   NEXT_PUBLIC_FIREBASE_APP_ID: '1:123456789:web:abcdef'
-  FIREBASE_ADMIN_PROJECT_ID: 'demo-project'
+  FIREBASE_ADMIN_PROJECT_ID: 'cafecorp-6187b'
 
 jobs:
   test:
