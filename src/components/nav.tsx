@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import type { SessionProfile } from '@/lib/auth/types';
 import { LogoutButton } from './logout-button';
@@ -24,9 +25,19 @@ export function Nav({ profile }: { profile: SessionProfile | null }) {
   return (
     <header className="relative border-b border-[var(--border)] bg-[var(--surface)] print:hidden">
       <nav className="mx-auto flex max-w-6xl items-center gap-2 px-4">
-        <span className="py-3 pr-4 text-lg font-bold tracking-tight text-[var(--color-brand-600)]">
+        <Link
+          href="/"
+          className="flex items-center gap-2 py-3 pr-4 text-lg font-bold tracking-tight text-[var(--color-brand-600)]"
+        >
+          <Image
+            src="/logo-mark.svg"
+            alt=""
+            width={28}
+            height={28}
+            className="rounded-md"
+          />
           CafeCorp
-        </span>
+        </Link>
 
         <ul className="hidden flex-1 items-center gap-1 text-sm font-medium text-[var(--muted)] sm:flex">
           {NAV_LINKS.map((link) => (

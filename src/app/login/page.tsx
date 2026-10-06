@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase/client';
 
@@ -73,13 +74,22 @@ export default function LoginPage() {
     return (
       <main className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-4 px-4">
         <div className="card flex flex-col gap-4 p-8">
-          <div>
-            <p className="text-lg font-bold text-[var(--color-brand-600)]">
-              CafeCorp
-            </p>
-            <h1 className="text-xl font-semibold tracking-tight">
-              Authenticator code
-            </h1>
+          <div className="flex items-center gap-2">
+            <Image
+              src="/logo-mark.svg"
+              alt=""
+              width={32}
+              height={32}
+              className="rounded-lg"
+            />
+            <div>
+              <p className="text-lg font-bold text-[var(--color-brand-600)]">
+                CafeCorp
+              </p>
+              <h1 className="text-xl font-semibold tracking-tight">
+                Authenticator code
+              </h1>
+            </div>
           </div>
           <form onSubmit={handleMfaSubmit} className="flex flex-col gap-3">
             <input
@@ -111,11 +121,20 @@ export default function LoginPage() {
   return (
     <main className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-4 px-4">
       <div className="card flex flex-col gap-4 p-8">
-        <div>
-          <p className="text-lg font-bold text-[var(--color-brand-600)]">
-            CafeCorp
-          </p>
-          <h1 className="text-xl font-semibold tracking-tight">Sign in</h1>
+        <div className="flex items-center gap-2">
+          <Image
+            src="/logo-mark.svg"
+            alt=""
+            width={32}
+            height={32}
+            className="rounded-lg"
+          />
+          <div>
+            <p className="text-lg font-bold text-[var(--color-brand-600)]">
+              CafeCorp
+            </p>
+            <h1 className="text-xl font-semibold tracking-tight">Sign in</h1>
+          </div>
         </div>
         <form onSubmit={handlePasswordSubmit} className="flex flex-col gap-3">
           <input

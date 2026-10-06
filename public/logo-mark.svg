@@ -1,0 +1,13 @@
+<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <rect width="32" height="32" rx="7" fill="#ea580c"/>
+  <!-- steam -->
+  <path d="M12.5 7.5c0-1 .8-1 .8-2s-.8-1-.8-2" stroke="#fff" stroke-width="1.3" stroke-linecap="round" fill="none" opacity="0.85"/>
+  <path d="M16 7.5c0-1 .8-1 .8-2s-.8-1-.8-2" stroke="#fff" stroke-width="1.3" stroke-linecap="round" fill="none" opacity="0.85"/>
+  <path d="M19.5 7.5c0-1 .8-1 .8-2s-.8-1-.8-2" stroke="#fff" stroke-width="1.3" stroke-linecap="round" fill="none" opacity="0.85"/>
+  <!-- cup body -->
+  <path d="M9 13h13.5v6.5c0 3.04-2.46 5.5-5.5 5.5h-2.5c-3.04 0-5.5-2.46-5.5-5.5V13z" fill="#fff"/>
+  <!-- handle -->
+  <path d="M22.5 14.5h1.8a2.7 2.7 0 0 1 0 5.4h-1.8" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <!-- saucer -->
+  <rect x="7.5" y="25.5" width="17" height="1.8" rx="0.9" fill="#fff"/>
+</svg>
