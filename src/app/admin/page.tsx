@@ -39,6 +39,9 @@ export default async function AdminPage() {
             <Link href="/reports" className={tileClassName}>
               Reports
             </Link>
+            <Link href="/admin/settings" className={tileClassName}>
+              Settings
+            </Link>
           </>
         )}
         {profile.role === 'SUPER_ADMIN' && (

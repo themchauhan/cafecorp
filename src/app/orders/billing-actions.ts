@@ -13,8 +13,8 @@ import {
   requireTenantId,
 } from '@/lib/auth/session';
 import { dailySummaryDocPath, dateKeyForDate } from '@/lib/daily-summary';
-import { amountPaid, orderTotal } from './money';
-import type { OrderLineItem, OrderPayment } from './types';
+import { amountPaid, grandTotal } from './money';
+import type { OrderDiscount, OrderLineItem, OrderPayment } from './types';
 
 async function requireStaffOrAdmin() {
   const profile = requireRole(await getSessionProfile(), ['ADMIN', 'STAFF']);
@@ -49,6 +49,8 @@ export async function addPayment(input: {
         status: string;
         items: OrderLineItem[];
         payments: OrderPayment[];
+        discount?: OrderDiscount;
+        taxRatePercent?: number;
       };
       if (!BILLABLE_STATUSES.has(order.status)) {
         throw new Error('This order can no longer accept payments');
@@ -61,7 +63,14 @@ export async function addPayment(input: {
         receivedAt: new Date().toISOString(), // serverTimestamp() isn't allowed inside arrays
       };
       const payments = [...order.payments, payment];
-      const total = orderTotal(order.items);
+      // Discount/tax-adjusted, not the raw item subtotal — a staff
+      // member must collect what's actually owed, not just the
+      // pre-tax/pre-discount sum of the line items.
+      const total = grandTotal(
+        order.items,
+        order.discount ?? null,
+        order.taxRatePercent ?? 0,
+      );
       billed = amountPaid(payments) >= total;
 
       if (!billed) {
@@ -160,6 +169,43 @@ export async function addPayment(input: {
     });
     revalidatePath(`/orders/${orderId}`);
     return { billed };
+  });
+}
+
+const applyDiscountSchema = z.object({
+  orderId: z.string().min(1),
+  discount: z
+    .object({
+      type: z.enum(['FLAT', 'PERCENT']),
+      value: z.number().positive(),
+    })
+    .nullable(),
+});
+
+/** Set to null to remove a previously-applied discount before billing. */
+export async function applyDiscount(input: {
+  orderId: string;
+  discount: OrderDiscount;
+}): Promise<ActionResult> {
+  return runAction(async () => {
+    const { profile, tenantId } = await requireStaffOrAdmin();
+    const { orderId, discount } = applyDiscountSchema.parse(input);
+    const orderRef = adminDb.doc(`tenants/${tenantId}/orders/${orderId}`);
+
+    await adminDb.runTransaction(async (tx) => {
+      const snap = await tx.get(orderRef);
+      if (!snap.exists) throw new Error('No such order in this tenant');
+      const order = snap.data() as { status: string };
+      if (!BILLABLE_STATUSES.has(order.status)) {
+        throw new Error('This order can no longer be discounted');
+      }
+      tx.update(orderRef, { discount });
+    });
+
+    await logAudit(profile, 'ORDER_DISCOUNT_APPLIED', 'order', orderId, {
+      discount,
+    });
+    revalidatePath(`/orders/${orderId}`);
   });
 }
 

@@ -8,7 +8,13 @@ import {
   requireTenantId,
 } from '@/lib/auth/session';
 import { mapOrderDoc } from '../../lib';
-import { amountPaid, orderTotal } from '../../money';
+import {
+  amountPaid,
+  discountAmount,
+  grandTotal,
+  orderTotal,
+  taxAmount,
+} from '../../money';
 import { PrintButton } from '../kot/print-button';
 
 export default async function ReceiptPage({
@@ -46,7 +52,10 @@ export default async function ReceiptPage({
     redirect(`/orders/${order.id}`);
   }
 
-  const total = orderTotal(order.items);
+  const subtotal = orderTotal(order.items);
+  const discount = discountAmount(subtotal, order.discount);
+  const tax = taxAmount(subtotal, order.discount, order.taxRatePercent);
+  const total = grandTotal(order.items, order.discount, order.taxRatePercent);
   const paid = amountPaid(order.payments);
 
   return (
@@ -69,10 +78,33 @@ export default async function ReceiptPage({
             </li>
           ))}
         </ul>
-        <p className="flex justify-between border-t border-zinc-300 pt-2 font-medium">
-          <span>Total</span>
-          <span>{total.toFixed(2)}</span>
-        </p>
+        <div className="flex flex-col gap-1 border-t border-zinc-300 pt-2">
+          <p className="flex justify-between">
+            <span>Subtotal</span>
+            <span>{subtotal.toFixed(2)}</span>
+          </p>
+          {discount > 0 && (
+            <p className="flex justify-between">
+              <span>
+                Discount
+                {order.discount?.type === 'PERCENT'
+                  ? ` (${order.discount.value}%)`
+                  : ''}
+              </span>
+              <span>-{discount.toFixed(2)}</span>
+            </p>
+          )}
+          {tax > 0 && (
+            <p className="flex justify-between">
+              <span>Tax ({order.taxRatePercent}%)</span>
+              <span>{tax.toFixed(2)}</span>
+            </p>
+          )}
+          <p className="flex justify-between font-medium">
+            <span>Total</span>
+            <span>{total.toFixed(2)}</span>
+          </p>
+        </div>
         <ul className="flex flex-col gap-1 border-t border-zinc-300 pt-2 text-zinc-600">
           {order.payments.map((payment, index) => (
             <li key={index} className="flex justify-between">

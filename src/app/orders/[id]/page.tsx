@@ -11,7 +11,7 @@ import {
 } from '@/lib/auth/session';
 import type { Category, MenuItem } from '@/app/admin/menu/types';
 import { mapOrderDoc } from '../lib';
-import { amountPaid, orderTotal } from '../money';
+import { orderTotal } from '../money';
 import { OrderBuilder } from './order-builder';
 import { BillPanel } from './bill-panel';
 
@@ -80,8 +80,7 @@ export default async function OrderPage({
     );
   }
 
-  const total = orderTotal(order.items);
-  const paid = amountPaid(order.payments);
+  const subtotal = orderTotal(order.items);
   const tableLabel = order.tableId
     ? ((
         await adminDb
@@ -114,8 +113,8 @@ export default async function OrderPage({
           ))}
         </ul>
         <p className="flex items-baseline justify-between border-t border-[var(--border)] pt-3 text-lg font-bold">
-          <span>Total</span>
-          <span>{total.toFixed(2)}</span>
+          <span>Subtotal</span>
+          <span>{subtotal.toFixed(2)}</span>
         </p>
       </div>
 
@@ -127,7 +126,7 @@ export default async function OrderPage({
       </Link>
 
       {(order.status === 'KOT_SENT' || order.status === 'SERVED') && (
-        <BillPanel order={order} total={total} paid={paid} />
+        <BillPanel order={order} />
       )}
 
       {order.status === 'BILLED' && (

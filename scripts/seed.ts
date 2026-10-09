@@ -11,6 +11,11 @@ const TENANT_ID = 'demo-cafe';
 // suspends/reactivates a tenant, so it never touches demo-cafe's
 // shared accounts.
 const LOCKOUT_TENANT_ID = 'lockout-test-cafe';
+// A third tenant dedicated to the tax-rate e2e test — it mutates a
+// tenant-wide setting (Settings > Tax rate), which would otherwise
+// race with any other test billing an order against demo-cafe
+// concurrently in a different Playwright worker.
+const TAX_TEST_TENANT_ID = 'tax-test-cafe';
 
 type SeedUser = {
   uid: string;
@@ -67,6 +72,14 @@ const USERS: SeedUser[] = [
     name: 'Lockout Test Staff',
     role: 'STAFF',
     tenantId: LOCKOUT_TENANT_ID,
+  },
+  {
+    uid: 'seed-tax-admin',
+    email: 'admin@tax-test.cafe',
+    password: 'password123',
+    name: 'Tax Test Admin',
+    role: 'ADMIN',
+    tenantId: TAX_TEST_TENANT_ID,
   },
 ];
 
@@ -140,6 +153,31 @@ async function main() {
     plan: 'TRIAL',
     trialEndsAt: trialEndsAt.toISOString(),
     subscriptionEndsAt: null,
+  });
+
+  // Dedicated tenant for the tax-rate e2e test (Phase 9) — needs its
+  // own single menu item so it doesn't have to touch demo-cafe's
+  // shared tax rate, which every other order-billing test implicitly
+  // assumes is 0%.
+  await adminDb.doc(`tenants/${TAX_TEST_TENANT_ID}`).set({
+    name: 'Tax Test Cafe',
+    phone: '+91 90000 00002',
+    email: 'owner@tax-test.cafe',
+    status: 'ACTIVE',
+    plan: 'TRIAL',
+    trialEndsAt: trialEndsAt.toISOString(),
+    subscriptionEndsAt: null,
+  });
+  await adminDb
+    .doc(`tenants/${TAX_TEST_TENANT_ID}/menuCategories/cat-snacks`)
+    .set({ name: 'Snacks', sortOrder: 0 });
+  await adminDb.doc(`tenants/${TAX_TEST_TENANT_ID}/menuItems/item-samosa`).set({
+    categoryId: 'cat-snacks',
+    name: 'Samosa',
+    price: 15,
+    vegFlag: true,
+    available: true,
+    description: 'Two pieces',
   });
 
   // Dummy menu (Phase 2) — fixed ids so this script stays idempotent.

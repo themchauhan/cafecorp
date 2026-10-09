@@ -38,7 +38,7 @@ vi.mock('@/lib/auth/session', async () => {
   };
 });
 
-import { addPayment, cancelOrder } from './billing-actions';
+import { addPayment, applyDiscount, cancelOrder } from './billing-actions';
 
 const staff = { uid: 'staff-1', role: 'STAFF' as const, tenantId: 'tenant-a' };
 
@@ -254,6 +254,101 @@ describe('addPayment', () => {
       mode: 'UPI',
     });
     expect(result).toEqual({ ok: true, data: { billed: false } });
+  });
+
+  it('requires payments to cover the discount- and tax-adjusted total, not the raw subtotal', async () => {
+    // Only one tx.get() happens here: a short (not-yet-billed) payment
+    // returns before the menuItem/category lookup that only runs once
+    // billed flips true — queuing a second mockResolvedValueOnce would
+    // go unconsumed and leak into the next test.
+    txGet.mockResolvedValueOnce({
+      exists: true,
+      data: () => ({
+        status: 'KOT_SENT',
+        items: [
+          {
+            menuItemId: 'item-1',
+            name: 'Tea',
+            quantity: 2,
+            priceSnapshot: 20,
+            notes: '',
+          },
+        ],
+        payments: [],
+        // subtotal 40, 10 flat off -> 30, 10% tax -> 33
+        discount: { type: 'FLAT', value: 10 },
+        taxRatePercent: 10,
+      }),
+    });
+
+    const short = await addPayment({
+      orderId: 'order-1',
+      amount: 30,
+      mode: 'CASH',
+    });
+    expect(short).toEqual({ ok: true, data: { billed: false } });
+  });
+});
+
+describe('applyDiscount', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    getSessionProfileMock.mockResolvedValue(staff);
+    runTransaction.mockImplementation(async (fn) => fn(tx()));
+  });
+
+  it("rejects an order that doesn't exist in this tenant", async () => {
+    txGet.mockResolvedValueOnce({ exists: false });
+    const result = await applyDiscount({
+      orderId: 'ghost',
+      discount: { type: 'FLAT', value: 10 },
+    });
+    expect(result).toEqual({
+      ok: false,
+      error: expect.stringMatching(/no such order/i),
+    });
+  });
+
+  it("rejects discounting an order that's already BILLED", async () => {
+    txGet.mockResolvedValueOnce({
+      exists: true,
+      data: () => ({ status: 'BILLED' }),
+    });
+    const result = await applyDiscount({
+      orderId: 'order-1',
+      discount: { type: 'FLAT', value: 10 },
+    });
+    expect(result).toEqual({
+      ok: false,
+      error: expect.stringMatching(/no longer be discounted/i),
+    });
+  });
+
+  it('sets a flat or percent discount on a billable order', async () => {
+    txGet.mockResolvedValueOnce({
+      exists: true,
+      data: () => ({ status: 'KOT_SENT' }),
+    });
+    const result = await applyDiscount({
+      orderId: 'order-1',
+      discount: { type: 'PERCENT', value: 10 },
+    });
+    expect(result.ok).toBe(true);
+    expect(txUpdate).toHaveBeenCalledWith(expect.anything(), {
+      discount: { type: 'PERCENT', value: 10 },
+    });
+  });
+
+  it('clears a discount by passing null', async () => {
+    txGet.mockResolvedValueOnce({
+      exists: true,
+      data: () => ({ status: 'KOT_SENT' }),
+    });
+    const result = await applyDiscount({ orderId: 'order-1', discount: null });
+    expect(result.ok).toBe(true);
+    expect(txUpdate).toHaveBeenCalledWith(expect.anything(), {
+      discount: null,
+    });
   });
 });
 

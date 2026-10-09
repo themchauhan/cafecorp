@@ -7,12 +7,25 @@ instinct.
 
 A multi-tenant web app sold to small cafeterias/cafes. Staff take
 orders, send a kitchen ticket (KOT), and settle bills — replacing a
-paper order pad and register. It is NOT a full restaurant POS: no
-online ordering, no delivery integration, no raw-material inventory
-costing, no GST invoicing, no online payments in the MVP.
+paper order pad and register.
 
-Full spec: `docs/BRIEF.md`. Phase checklists: `docs/phases/phase-N.md`
-— read only the current phase's file plus `phase-0.md`.
+Phases 1a–8 (the original MVP, see `docs/BRIEF.md`) deliberately
+excluded online ordering, inventory, and staff attendance to ship
+something real first. Phase 9 onward expands toward the full feature
+set now being marketed (billing taxes/discounts, kitchen timers,
+peak-hour reports, staff shifts/attendance, ingredient stock +
+recipes, and QR at-table customer self-ordering) — see
+`docs/phases/phase-9.md` onward as each lands. Two boundaries still
+hold even as scope grows: **no delivery integration or third-party
+ordering platforms** (QR ordering is strictly in-house, scoped to a
+table at the tenant's own premises, not remote/delivery), and **no
+online payment gateway** (rule 8) — "inventory" here means simple
+stock-count tracking + recipes, not full costing/COGS/vendor
+accounting.
+
+Full MVP spec: `docs/BRIEF.md` (describes Phases 1a–8; not yet
+updated for Phase 9+). Phase checklists: `docs/phases/phase-N.md` —
+read only the current phase's file plus `phase-0.md`.
 
 ## Hard rules
 

@@ -62,6 +62,14 @@ describe('createOrder', () => {
     vi.clearAllMocks();
     getSessionProfileMock.mockResolvedValue(staff);
     collectionAdd.mockResolvedValue({ id: 'order-1' });
+    // Default for whichever call isn't overridden by a test-specific
+    // mockResolvedValueOnce below — covers both the DINE_IN table
+    // check and the tenant tax-rate read, in whichever order a given
+    // test's code path makes them.
+    docGet.mockResolvedValue({
+      exists: true,
+      data: () => ({ active: true, taxRatePercent: 0 }),
+    });
   });
 
   it('rejects a non-STAFF/ADMIN caller', async () => {
@@ -80,9 +88,22 @@ describe('createOrder', () => {
         status: 'OPEN',
         items: [],
         createdBy: 'staff-1',
+        taxRatePercent: 0,
+        discount: null,
       }),
     );
     expect(result).toEqual({ ok: true, data: { id: 'order-1' } });
+  });
+
+  it("snapshots the tenant's currently-configured tax rate onto the new order", async () => {
+    docGet.mockResolvedValue({
+      exists: true,
+      data: () => ({ taxRatePercent: 5 }),
+    });
+    await createOrder({ orderType: 'TAKEAWAY' });
+    expect(collectionAdd).toHaveBeenCalledWith(
+      expect.objectContaining({ taxRatePercent: 5 }),
+    );
   });
 
   it('rejects a DINE_IN order with no tableId', async () => {

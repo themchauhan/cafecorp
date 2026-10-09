@@ -48,12 +48,20 @@ export async function createOrder(input: {
       }
     }
 
+    // Snapshotted now, not read again at billing time — a tax-rate
+    // change in Settings must never alter an order already in flight
+    // (CLAUDE.md rule 9's reasoning extended to tax, not just price).
+    const tenantSnap = await adminDb.doc(`tenants/${tenantId}`).get();
+    const taxRatePercent = (tenantSnap.data()?.taxRatePercent as number) ?? 0;
+
     const ref = await adminDb.collection(`tenants/${tenantId}/orders`).add({
       orderType,
       tableId: orderType === 'DINE_IN' ? tableId : null,
       status: 'OPEN',
       items: [],
       payments: [],
+      taxRatePercent,
+      discount: null,
       cancelReason: null,
       createdBy: profile.uid,
       createdAt: FieldValue.serverTimestamp(),

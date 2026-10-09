@@ -204,6 +204,14 @@ body {
     background: var(--color-danger-50);
     color: var(--color-danger-700);
   }
+  .badge-timer-warning {
+    background: var(--color-warning-600);
+    color: white;
+  }
+  .badge-timer-urgent {
+    background: var(--color-danger-600);
+    color: white;
+  }
 
   /* Large tappable tile for adding a menu item — the single most
      repeated action on the order-taking screen. */
