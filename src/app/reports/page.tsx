@@ -83,6 +83,15 @@ export default async function ReportsPage({
     (a, b) => b[1] - a[1],
   );
 
+  // Chronological (0-23), not sorted by count — a peak-hours report
+  // is read as a day's shape, not a leaderboard. Hours with zero
+  // orders are hidden to keep a typical cafe's open hours compact.
+  const hourRows = Object.entries(report.ordersByHour)
+    .map(([hour, count]) => ({ hour: Number(hour), count }))
+    .filter((row) => row.count > 0)
+    .sort((a, b) => a.hour - b.hour);
+  const maxHourCount = Math.max(1, ...hourRows.map((row) => row.count));
+
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-4 py-16">
       <h1 className="text-2xl font-bold tracking-tight">Reports</h1>
@@ -193,6 +202,30 @@ export default async function ReportsPage({
               >
                 <span>{row.name}</span>
                 <span className="font-semibold">{row.amount.toFixed(2)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="card flex flex-col gap-2 p-5">
+        <h2 className="text-lg font-semibold">Peak hours</h2>
+        {hourRows.length === 0 ? (
+          <p className="text-sm text-[var(--muted)]">
+            No billed orders in range.
+          </p>
+        ) : (
+          <ul className="flex flex-col gap-1.5 text-sm">
+            {hourRows.map((row) => (
+              <li key={row.hour} className="flex items-center gap-3">
+                <span className="w-14 shrink-0 text-[var(--muted)]">
+                  {String(row.hour).padStart(2, '0')}:00
+                </span>
+                <span
+                  className="h-4 rounded-full bg-[var(--color-brand-500)]"
+                  style={{ width: `${(row.count / maxHourCount) * 100}%` }}
+                />
+                <span className="font-semibold">{row.count}</span>
               </li>
             ))}
           </ul>

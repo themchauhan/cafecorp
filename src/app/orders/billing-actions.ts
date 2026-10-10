@@ -12,7 +12,11 @@ import {
   requireRole,
   requireTenantId,
 } from '@/lib/auth/session';
-import { dailySummaryDocPath, dateKeyForDate } from '@/lib/daily-summary';
+import {
+  dailySummaryDocPath,
+  dateKeyForDate,
+  hourKeyForDate,
+} from '@/lib/daily-summary';
 import { amountPaid, grandTotal } from './money';
 import type { OrderDiscount, OrderLineItem, OrderPayment } from './types';
 
@@ -146,13 +150,15 @@ export async function addPayment(input: {
       // — set(..., {merge: true}) does NOT split dots in a key into a
       // field path the way update() does; it would otherwise write a
       // literal field named e.g. "totalsByMode.CASH".
+      const now = new Date();
       const summaryUpdate = {
         totalsByMode: toIncrementMap(modeTotals),
         totalsByStaff: toIncrementMap(staffTotals),
         itemsSold: toIncrementMap(itemTotals),
         categorySales: toIncrementMap(categoryTotals),
+        ordersByHour: { [hourKeyForDate(now)]: FieldValue.increment(1) },
       };
-      const dateKey = dateKeyForDate(new Date());
+      const dateKey = dateKeyForDate(now);
       tx.set(
         adminDb.doc(dailySummaryDocPath(tenantId, dateKey)),
         summaryUpdate,

@@ -12,11 +12,19 @@ export type DailySummary = {
   totalsByStaff: Record<string, number>;
   itemsSold: Record<string, number>; // menuItemId -> quantity
   categorySales: Record<string, number>; // categoryId -> revenue
+  // "0".."23", UTC — number of orders billed in that hour. Phase 9's
+  // peak-hours report.
+  ordersByHour: Record<string, number>;
 };
 
 /** UTC date key. Single-timezone assumption for the MVP — see docs/phases/phase-4.md. */
 export function dateKeyForDate(date: Date): string {
   return date.toISOString().slice(0, 10);
+}
+
+/** UTC hour-of-day key, "0".."23" — same single-timezone assumption as dateKeyForDate. */
+export function hourKeyForDate(date: Date): string {
+  return String(date.getUTCHours());
 }
 
 export function dailySummaryDocPath(tenantId: string, dateKey: string): string {

@@ -9,6 +9,7 @@ function summary(overrides: Partial<DailySummary>): DailySummary {
     totalsByStaff: {},
     itemsSold: {},
     categorySales: {},
+    ordersByHour: {},
     ...overrides,
   };
 }
@@ -21,8 +22,17 @@ describe('aggregateSummaries', () => {
       totalsByStaff: {},
       itemsSold: {},
       categorySales: {},
+      ordersByHour: {},
       grandTotal: 0,
     });
+  });
+
+  it('sums ordersByHour across days, merging the same hour key', () => {
+    const result = aggregateSummaries([
+      summary({ ordersByHour: { '9': 2, '13': 1 } }),
+      summary({ date: '2026-10-02', ordersByHour: { '9': 1, '18': 3 } }),
+    ]);
+    expect(result.ordersByHour).toEqual({ '9': 3, '13': 1, '18': 3 });
   });
 
   it('sums a single day correctly', () => {

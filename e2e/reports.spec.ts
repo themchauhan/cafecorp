@@ -56,5 +56,18 @@ test("billing a Samosa order shows up in today's report; staff can't see reports
   // committed before "View receipt" appeared above — one fresh load
   // is enough.
   await expect(adminPage.getByText('Samosa')).toBeVisible({ timeout: 10_000 });
+
+  // Peak hours (Phase 9): the order just billed above should show up
+  // under whichever UTC hour the test happened to run in — can't
+  // predict the exact hour, but the section must not be showing its
+  // empty state once an order's been billed today.
+  const peakHoursSection = adminPage
+    .locator('section')
+    .filter({ has: adminPage.getByRole('heading', { name: 'Peak hours' }) });
+  await expect(peakHoursSection).toBeVisible();
+  await expect(
+    peakHoursSection.getByText('No billed orders in range.'),
+  ).toHaveCount(0);
+
   await adminContext.close();
 });

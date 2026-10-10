@@ -8,6 +8,7 @@ export type AggregatedReport = {
   totalsByStaff: Record<string, number>;
   itemsSold: Record<string, number>;
   categorySales: Record<string, number>;
+  ordersByHour: Record<string, number>;
   grandTotal: number;
 };
 
@@ -27,12 +28,14 @@ export function aggregateSummaries(
   const totalsByStaff: Record<string, number> = {};
   const itemsSold: Record<string, number> = {};
   const categorySales: Record<string, number> = {};
+  const ordersByHour: Record<string, number> = {};
 
   for (const summary of summaries) {
     addInto(totalsByMode, summary.totalsByMode);
     addInto(totalsByStaff, summary.totalsByStaff);
     addInto(itemsSold, summary.itemsSold);
     addInto(categorySales, summary.categorySales);
+    addInto(ordersByHour, summary.ordersByHour);
   }
 
   const grandTotal = Object.values(totalsByMode).reduce(
@@ -40,5 +43,12 @@ export function aggregateSummaries(
     0,
   );
 
-  return { totalsByMode, totalsByStaff, itemsSold, categorySales, grandTotal };
+  return {
+    totalsByMode,
+    totalsByStaff,
+    itemsSold,
+    categorySales,
+    ordersByHour,
+    grandTotal,
+  };
 }

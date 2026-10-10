@@ -161,6 +161,7 @@ describe('addPayment', () => {
         totalsByStaff: Record<string, unknown>;
         itemsSold: Record<string, unknown>;
         categorySales: Record<string, unknown>;
+        ordersByHour: Record<string, unknown>;
       },
     ];
     // Real nested objects, not flat dotted-string keys — set(...,
@@ -171,6 +172,13 @@ describe('addPayment', () => {
     expect(summaryUpdate.totalsByStaff['staff-1']).toBeDefined();
     expect(summaryUpdate.itemsSold['item-1']).toBeDefined();
     expect(summaryUpdate.categorySales['cat-beverages']).toBeDefined();
+    // Exactly one hour key (the current hour), incremented by 1 —
+    // Phase 9's peak-hours report.
+    const hourKeys = Object.keys(summaryUpdate.ordersByHour);
+    expect(hourKeys).toHaveLength(1);
+    expect(summaryUpdate.ordersByHour[hourKeys[0]]).toMatchObject({
+      operand: 1,
+    });
   });
 
   it('sums two payments in the same mode into one increment instead of overwriting it', async () => {
