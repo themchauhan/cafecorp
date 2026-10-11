@@ -2,6 +2,15 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Forbidden } from '@/components/forbidden';
 import { AuthError, getSessionProfile, requireRole } from '@/lib/auth/session';
+import {
+  AdminIcon,
+  MenuBookIcon,
+  PeopleIcon,
+  ReportsIcon,
+  ShieldIcon,
+  TableIcon,
+  TenantsIcon,
+} from '@/components/icons';
 
 export default async function AdminPage() {
   const profile = await getSessionProfile();
@@ -19,7 +28,8 @@ export default async function AdminPage() {
   }
 
   const tileClassName =
-    'card flex min-h-24 items-center justify-center p-5 text-center text-lg font-bold hover:border-[var(--color-brand-500)]';
+    'card flex min-h-28 flex-col justify-between gap-3 p-5 hover:border-[var(--color-brand-500)]';
+  const iconClassName = 'text-[var(--color-brand-600)]';
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-start gap-6 px-4 py-16">
@@ -28,29 +38,71 @@ export default async function AdminPage() {
         {profile.role === 'ADMIN' && (
           <>
             <Link href="/admin/staff" className={tileClassName}>
-              Staff
+              <PeopleIcon size={28} className={iconClassName} />
+              <span className="flex flex-col gap-0.5">
+                <span className="text-lg font-bold">Staff</span>
+                <span className="text-sm text-[var(--muted)]">
+                  Invite, activate, deactivate
+                </span>
+              </span>
             </Link>
             <Link href="/admin/menu" className={tileClassName}>
-              Menu
+              <MenuBookIcon size={28} className={iconClassName} />
+              <span className="flex flex-col gap-0.5">
+                <span className="text-lg font-bold">Menu</span>
+                <span className="text-sm text-[var(--muted)]">
+                  Categories &amp; items
+                </span>
+              </span>
             </Link>
             <Link href="/admin/tables" className={tileClassName}>
-              Tables
+              <TableIcon size={28} className={iconClassName} />
+              <span className="flex flex-col gap-0.5">
+                <span className="text-lg font-bold">Tables</span>
+                <span className="text-sm text-[var(--muted)]">
+                  Dine-in table setup
+                </span>
+              </span>
             </Link>
             <Link href="/reports" className={tileClassName}>
-              Reports
+              <ReportsIcon size={28} className={iconClassName} />
+              <span className="flex flex-col gap-0.5">
+                <span className="text-lg font-bold">Reports</span>
+                <span className="text-sm text-[var(--muted)]">
+                  Collections &amp; trends
+                </span>
+              </span>
             </Link>
             <Link href="/admin/settings" className={tileClassName}>
-              Settings
+              <AdminIcon size={28} className={iconClassName} />
+              <span className="flex flex-col gap-0.5">
+                <span className="text-lg font-bold">Settings</span>
+                <span className="text-sm text-[var(--muted)]">
+                  Tax rate &amp; more
+                </span>
+              </span>
             </Link>
           </>
         )}
         {profile.role === 'SUPER_ADMIN' && (
           <Link href="/super-admin" className={tileClassName}>
-            Tenants (platform)
+            <TenantsIcon size={28} className={iconClassName} />
+            <span className="flex flex-col gap-0.5">
+              <span className="text-lg font-bold">Tenants</span>
+              <span className="text-sm text-[var(--muted)]">
+                Manage cafeterias (platform)
+              </span>
+            </span>
           </Link>
         )}
         <Link href="/admin/mfa" className={tileClassName}>
-          Two-factor authentication
+          <ShieldIcon size={28} className={iconClassName} />
+          <span className="flex flex-col gap-0.5">
+            <span className="text-lg font-bold">Two-factor auth</span>
+            <span className="text-sm text-[var(--muted)]">
+              Secure this account
+            </span>
+          </span>
         </Link>
       </div>
     </main>

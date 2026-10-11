@@ -69,6 +69,9 @@ export default async function OrderPage({
     return (
       <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-4 px-4 py-8">
         <h1 className="text-2xl font-bold tracking-tight">
+          <span className="text-[var(--color-brand-600)]">
+            #{order.ticketNumber}
+          </span>{' '}
           {order.orderType.replace('_', '-')} order
         </h1>
         <OrderBuilder
@@ -93,6 +96,9 @@ export default async function OrderPage({
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-4 px-4 py-8">
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="text-2xl font-bold tracking-tight">
+          <span className="text-[var(--color-brand-600)]">
+            #{order.ticketNumber}
+          </span>{' '}
           {order.orderType.replace('_', '-')}
           {tableLabel ? ` · ${tableLabel}` : ''}
         </h1>

@@ -49,6 +49,23 @@ export async function getSessionProfile(): Promise<SessionProfile | null> {
   }
 }
 
+/**
+ * Best-effort display name for the signed-in user, read from their
+ * profile doc (or `platformAdmins` for SUPER_ADMIN). Deliberately not
+ * part of `SessionProfile` — that type is limited to the identity/
+ * claims the auth system verifies (uid/role/tenantId); a display name
+ * is just UI copy, fetched separately wherever it's shown.
+ */
+export async function getDisplayName(
+  profile: SessionProfile,
+): Promise<string | null> {
+  const path = profile.tenantId
+    ? `tenants/${profile.tenantId}/profiles/${profile.uid}`
+    : `platformAdmins/${profile.uid}`;
+  const snap = await adminDb.doc(path).get();
+  return (snap.data()?.name as string | undefined) ?? null;
+}
+
 export class AuthError extends Error {
   readonly status: 401 | 403;
   constructor(message: string, status: 401 | 403 = 403) {

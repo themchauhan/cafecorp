@@ -3,13 +3,12 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import type { SessionProfile } from '@/lib/auth/types';
+import type { Role, SessionProfile } from '@/lib/auth/types';
 import { LogoutButton } from './logout-button';
 
-// Not role-gated yet beyond /admin (which itself redirects non-admins)
-// — see docs/phases. There's no standalone "/menu" browsing route:
-// staff see the menu inline while building an order, and admins
-// manage it via Admin → Menu (/admin/menu).
+// There's no standalone "/menu" browsing route: staff see the menu
+// inline while building an order, and admins manage it via Admin →
+// Menu (/admin/menu).
 const NAV_LINKS = [
   { href: '/', label: 'Dashboard' },
   { href: '/orders', label: 'Orders' },
@@ -19,8 +18,28 @@ const NAV_LINKS = [
   { href: '/admin', label: 'Admin' },
 ] as const;
 
-export function Nav({ profile }: { profile: SessionProfile | null }) {
+// Mirrors each route's own requireRole() check (orders/page.tsx,
+// kitchen/page.tsx, tables/page.tsx, reports/page.tsx, admin/page.tsx)
+// — a link a role can't open just leads to a 403, so it shouldn't be
+// in the nav for that role in the first place.
+const VISIBLE_HREFS: Record<Role, readonly string[]> = {
+  STAFF: ['/', '/orders', '/kitchen', '/tables'],
+  ADMIN: ['/', '/orders', '/kitchen', '/tables', '/reports', '/admin'],
+  SUPER_ADMIN: ['/', '/admin'],
+};
+
+export function Nav({
+  profile,
+  displayName,
+}: {
+  profile: SessionProfile | null;
+  displayName?: string | null;
+}) {
   const [open, setOpen] = useState(false);
+  const identityLabel = displayName ?? profile?.role ?? '';
+  const visibleLinks = profile
+    ? NAV_LINKS.filter((link) => VISIBLE_HREFS[profile.role].includes(link.href))
+    : NAV_LINKS;
 
   return (
     <header className="relative border-b border-[var(--border)] bg-[var(--surface)] print:hidden">
@@ -40,7 +59,7 @@ export function Nav({ profile }: { profile: SessionProfile | null }) {
         </Link>
 
         <ul className="hidden flex-1 items-center gap-1 text-sm font-medium text-[var(--muted)] sm:flex">
-          {NAV_LINKS.map((link) => (
+          {visibleLinks.map((link) => (
             <li key={link.href}>
               <Link
                 href={link.href}
@@ -55,7 +74,14 @@ export function Nav({ profile }: { profile: SessionProfile | null }) {
         <div className="hidden items-center gap-3 pl-2 text-sm text-[var(--muted)] sm:flex">
           {profile ? (
             <>
-              <span className="font-semibold">{profile.role}</span>
+              <span className="flex flex-col items-end leading-tight">
+                <span className="font-semibold text-[var(--foreground)]">
+                  {identityLabel}
+                </span>
+                {displayName && (
+                  <span className="text-xs">{profile.role}</span>
+                )}
+              </span>
               <LogoutButton />
             </>
           ) : (
@@ -87,7 +113,7 @@ export function Nav({ profile }: { profile: SessionProfile | null }) {
       {open && (
         <div className="absolute inset-x-0 top-full z-50 border-t border-[var(--border)] bg-[var(--surface)] px-4 py-3 shadow-lg sm:hidden">
           <ul className="flex flex-col gap-1 text-sm font-medium text-[var(--muted)]">
-            {NAV_LINKS.map((link) => (
+            {visibleLinks.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
@@ -102,8 +128,15 @@ export function Nav({ profile }: { profile: SessionProfile | null }) {
           <div className="mt-2 flex items-center justify-between border-t border-[var(--border)] pt-3">
             {profile ? (
               <>
-                <span className="text-sm font-semibold text-[var(--muted)]">
-                  {profile.role}
+                <span className="flex flex-col leading-tight">
+                  <span className="text-sm font-semibold text-[var(--foreground)]">
+                    {identityLabel}
+                  </span>
+                  {displayName && (
+                    <span className="text-xs text-[var(--muted)]">
+                      {profile.role}
+                    </span>
+                  )}
                 </span>
                 <LogoutButton />
               </>

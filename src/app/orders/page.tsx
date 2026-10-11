@@ -74,6 +74,9 @@ export default async function OrdersPage() {
                   className="card flex min-h-16 items-center justify-between gap-2 px-4 py-3 hover:border-[var(--color-brand-500)]"
                 >
                   <span className="font-medium">
+                    <span className="text-[var(--color-brand-600)]">
+                      #{order.ticketNumber || '—'}
+                    </span>{' '}
                     {order.orderType.replace('_', '-')}
                     {order.tableId
                       ? ` · ${tableLabel.get(order.tableId) ?? order.tableId}`

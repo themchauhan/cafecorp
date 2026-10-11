@@ -6,6 +6,7 @@ const {
   runTransaction,
   txGet,
   txUpdate,
+  txSet,
   getSessionProfileMock,
   logAuditMock,
 } = vi.hoisted(() => ({
@@ -14,13 +15,14 @@ const {
   runTransaction: vi.fn(),
   txGet: vi.fn(),
   txUpdate: vi.fn(),
+  txSet: vi.fn(),
   getSessionProfileMock: vi.fn(),
   logAuditMock: vi.fn(),
 }));
 
 vi.mock('@/lib/firebase/admin', () => ({
   adminDb: {
-    collection: () => ({ add: collectionAdd }),
+    collection: () => ({ add: collectionAdd, doc: () => ({ id: 'order-1' }) }),
     doc: (path: string) => ({ path, get: docGet }),
     runTransaction: (fn: (tx: unknown) => unknown) => runTransaction(fn),
   },
@@ -44,6 +46,7 @@ vi.mock('@/lib/auth/session', async () => {
 import {
   addOrderItem,
   createOrder,
+  markOrderReady,
   sendToKitchen,
   updateOrderItemQuantity,
 } from './actions';
@@ -51,17 +54,19 @@ import {
 const staff = { uid: 'staff-1', role: 'STAFF' as const, tenantId: 'tenant-a' };
 
 // The transaction mock just runs the callback with a `tx` whose
-// get()/update() delegate to shared mocks keyed by doc path, so each
-// test configures txGet's return values per call order.
+// get()/update()/set() delegate to shared mocks keyed by doc path, so
+// each test configures txGet's return values per call order.
 function tx() {
-  return { get: txGet, update: txUpdate };
+  return { get: txGet, update: txUpdate, set: txSet };
 }
 
 describe('createOrder', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     getSessionProfileMock.mockResolvedValue(staff);
-    collectionAdd.mockResolvedValue({ id: 'order-1' });
+    runTransaction.mockImplementation(async (fn) => fn(tx()));
+    // Default: first order of the day (counter doc doesn't exist yet).
+    txGet.mockResolvedValue({ data: () => undefined });
     // Default for whichever call isn't overridden by a test-specific
     // mockResolvedValueOnce below — covers both the DINE_IN table
     // check and the tenant tax-rate read, in whichever order a given
@@ -76,13 +81,16 @@ describe('createOrder', () => {
     getSessionProfileMock.mockResolvedValue(null);
     const result = await createOrder({ orderType: 'TAKEAWAY' });
     expect(result.ok).toBe(false);
-    expect(collectionAdd).not.toHaveBeenCalled();
+    expect(runTransaction).not.toHaveBeenCalled();
   });
 
-  it('creates an OPEN TAKEAWAY/PARCEL order with no tableId', async () => {
+  it('creates an OPEN TAKEAWAY/PARCEL order with no tableId, ticket #1', async () => {
     const result = await createOrder({ orderType: 'TAKEAWAY' });
-    expect(collectionAdd).toHaveBeenCalledWith(
+    expect(txSet).toHaveBeenNthCalledWith(
+      2,
+      expect.anything(),
       expect.objectContaining({
+        ticketNumber: 1,
         orderType: 'TAKEAWAY',
         tableId: null,
         status: 'OPEN',
@@ -95,13 +103,27 @@ describe('createOrder', () => {
     expect(result).toEqual({ ok: true, data: { id: 'order-1' } });
   });
 
+  it('assigns sequential ticket numbers within the same day', async () => {
+    txGet.mockResolvedValueOnce({ data: () => undefined }); // first order today
+    await createOrder({ orderType: 'TAKEAWAY' });
+    const [, firstOrder] = txSet.mock.calls[1] as [unknown, { ticketNumber: number }];
+    expect(firstOrder.ticketNumber).toBe(1);
+
+    txGet.mockResolvedValueOnce({ data: () => ({ count: 1 }) }); // counter now at 1
+    await createOrder({ orderType: 'TAKEAWAY' });
+    const [, secondOrder] = txSet.mock.calls[3] as [unknown, { ticketNumber: number }];
+    expect(secondOrder.ticketNumber).toBe(2);
+  });
+
   it("snapshots the tenant's currently-configured tax rate onto the new order", async () => {
     docGet.mockResolvedValue({
       exists: true,
       data: () => ({ taxRatePercent: 5 }),
     });
     await createOrder({ orderType: 'TAKEAWAY' });
-    expect(collectionAdd).toHaveBeenCalledWith(
+    expect(txSet).toHaveBeenNthCalledWith(
+      2,
+      expect.anything(),
       expect.objectContaining({ taxRatePercent: 5 }),
     );
   });
@@ -112,7 +134,7 @@ describe('createOrder', () => {
       ok: false,
       error: expect.stringMatching(/choose a table/i),
     });
-    expect(collectionAdd).not.toHaveBeenCalled();
+    expect(runTransaction).not.toHaveBeenCalled();
   });
 
   it("rejects a tableId that doesn't exist in this tenant", async () => {
@@ -125,7 +147,7 @@ describe('createOrder', () => {
       ok: false,
       error: expect.stringMatching(/not available/i),
     });
-    expect(collectionAdd).not.toHaveBeenCalled();
+    expect(runTransaction).not.toHaveBeenCalled();
   });
 
   it('rejects a deactivated table', async () => {
@@ -141,7 +163,7 @@ describe('createOrder', () => {
       ok: false,
       error: expect.stringMatching(/not available/i),
     });
-    expect(collectionAdd).not.toHaveBeenCalled();
+    expect(runTransaction).not.toHaveBeenCalled();
   });
 
   it('creates a DINE_IN order with a valid, active tableId', async () => {
@@ -153,7 +175,9 @@ describe('createOrder', () => {
       orderType: 'DINE_IN',
       tableId: 'table-1',
     });
-    expect(collectionAdd).toHaveBeenCalledWith(
+    expect(txSet).toHaveBeenNthCalledWith(
+      2,
+      expect.anything(),
       expect.objectContaining({ orderType: 'DINE_IN', tableId: 'table-1' }),
     );
     expect(result).toEqual({ ok: true, data: { id: 'order-1' } });
@@ -447,5 +471,55 @@ describe('sendToKitchen', () => {
       expect.anything(),
       expect.objectContaining({ status: 'KOT_SENT' }),
     );
+  });
+});
+
+describe('markOrderReady', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    getSessionProfileMock.mockResolvedValue(staff);
+    runTransaction.mockImplementation(async (fn) => fn(tx()));
+  });
+
+  it('rejects a non-STAFF/ADMIN caller', async () => {
+    getSessionProfileMock.mockResolvedValue(null);
+    const result = await markOrderReady('order-1');
+    expect(result.ok).toBe(false);
+    expect(runTransaction).not.toHaveBeenCalled();
+  });
+
+  it("rejects an order that doesn't exist in this tenant", async () => {
+    txGet.mockResolvedValueOnce({ exists: false });
+    const result = await markOrderReady('ghost');
+    expect(result).toEqual({
+      ok: false,
+      error: expect.stringMatching(/no such order/i),
+    });
+  });
+
+  it("rejects an order that isn't in the kitchen (KOT_SENT)", async () => {
+    txGet.mockResolvedValueOnce({
+      exists: true,
+      data: () => ({ status: 'OPEN' }),
+    });
+    const result = await markOrderReady('order-1');
+    expect(result).toEqual({
+      ok: false,
+      error: expect.stringMatching(/only a ticket in the kitchen/i),
+    });
+    expect(txUpdate).not.toHaveBeenCalled();
+  });
+
+  it('marks a KOT_SENT order as SERVED', async () => {
+    txGet.mockResolvedValueOnce({
+      exists: true,
+      data: () => ({ status: 'KOT_SENT' }),
+    });
+    const result = await markOrderReady('order-1');
+    expect(txUpdate).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ status: 'SERVED' }),
+    );
+    expect(result).toEqual({ ok: true, data: undefined });
   });
 });

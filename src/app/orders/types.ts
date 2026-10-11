@@ -25,6 +25,11 @@ export type OrderDiscount = {
 
 export type Order = {
   id: string;
+  // Daily, per-tenant, human-readable ticket number ("Order #7") —
+  // resets each day (see dateKeyForDate in src/lib/daily-summary.ts).
+  // Distinct from `id`, which is the Firestore doc id and never shown
+  // to staff.
+  ticketNumber: number;
   orderType: OrderType;
   tableId: string | null;
   status: OrderStatus;
@@ -42,4 +47,6 @@ export type Order = {
   createdBy: string;
   createdAt: string | null;
   kotSentAt: string | null;
+  // Set when the kitchen marks this ticket ready (KOT_SENT -> SERVED).
+  servedAt: string | null;
 };

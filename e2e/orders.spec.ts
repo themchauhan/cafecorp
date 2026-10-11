@@ -57,4 +57,20 @@ test('the kitchen board shows a sent order live, with no prices', async ({
   await expect(page.getByText('Filter Coffee')).toBeVisible({
     timeout: 10_000,
   });
+
+  // Phase 9: the ticket shows a daily ticket number and a "Mark
+  // ready" action that moves it out of Cooking into Ready to serve.
+  const ticket = page.locator('.card', { hasText: 'Filter Coffee' });
+  await expect(ticket.getByText(/^#\d+/)).toBeVisible();
+  await ticket.getByRole('button', { name: 'Mark ready' }).click();
+
+  const readySection = page
+    .locator('section')
+    .filter({ has: page.getByRole('heading', { name: 'Ready to serve' }) });
+  await expect(readySection.getByText('Filter Coffee')).toBeVisible({
+    timeout: 10_000,
+  });
+  await expect(
+    readySection.getByRole('link', { name: 'Bill this order' }),
+  ).toBeVisible();
 });

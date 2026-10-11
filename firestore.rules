@@ -109,6 +109,14 @@ service cloud.firestore {
         allow read: if isTenantMember(tenantId) || isSuperAdmin();
         allow write: if false;
       }
+
+      // Daily ticket-number counter (one doc per day). Purely
+      // internal to createOrder's transaction — the number itself is
+      // already exposed via the (readable) order doc, so no client
+      // path ever needs to read this directly.
+      match /ticketCounters/{dateKey} {
+        allow read, write: if false;
+      }
     }
 
     // Deny-by-default safety net for every collection not explicitly

@@ -20,4 +20,38 @@ describe('Nav', () => {
     expect(screen.getByText('ADMIN')).toBeInTheDocument();
     expect(screen.getByText('Log out')).toBeInTheDocument();
   });
+
+  it('prefers the real display name over the raw role when given one', () => {
+    render(
+      <Nav
+        profile={{ uid: 'u1', role: 'ADMIN', tenantId: 't1' }}
+        displayName="Priya Sharma"
+      />,
+    );
+    expect(screen.getAllByText('Priya Sharma').length).toBeGreaterThan(0);
+  });
+
+  it('hides Reports and Admin for STAFF, who get a 403 on those routes', () => {
+    render(<Nav profile={{ uid: 'u1', role: 'STAFF', tenantId: 't1' }} />);
+    expect(screen.getByText('Orders')).toBeInTheDocument();
+    expect(screen.getByText('Kitchen')).toBeInTheDocument();
+    expect(screen.getByText('Tables')).toBeInTheDocument();
+    expect(screen.queryByText('Reports')).not.toBeInTheDocument();
+    expect(screen.queryByText('Admin')).not.toBeInTheDocument();
+  });
+
+  it('shows every link for ADMIN', () => {
+    render(<Nav profile={{ uid: 'u1', role: 'ADMIN', tenantId: 't1' }} />);
+    expect(screen.getByText('Orders')).toBeInTheDocument();
+    expect(screen.getByText('Reports')).toBeInTheDocument();
+    expect(screen.getByText('Admin')).toBeInTheDocument();
+  });
+
+  it('only shows Dashboard and Admin for SUPER_ADMIN, who has no tenant', () => {
+    render(<Nav profile={{ uid: 'u1', role: 'SUPER_ADMIN', tenantId: null }} />);
+    expect(screen.getByText('Dashboard')).toBeInTheDocument();
+    expect(screen.getByText('Admin')).toBeInTheDocument();
+    expect(screen.queryByText('Orders')).not.toBeInTheDocument();
+    expect(screen.queryByText('Reports')).not.toBeInTheDocument();
+  });
 });

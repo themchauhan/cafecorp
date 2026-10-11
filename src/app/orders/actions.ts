@@ -12,6 +12,7 @@ import {
   requireRole,
   requireTenantId,
 } from '@/lib/auth/session';
+import { dateKeyForDate } from '@/lib/daily-summary';
 import type { OrderLineItem } from './types';
 
 async function requireStaffOrAdmin() {
@@ -54,22 +55,37 @@ export async function createOrder(input: {
     const tenantSnap = await adminDb.doc(`tenants/${tenantId}`).get();
     const taxRatePercent = (tenantSnap.data()?.taxRatePercent as number) ?? 0;
 
-    const ref = await adminDb.collection(`tenants/${tenantId}/orders`).add({
-      orderType,
-      tableId: orderType === 'DINE_IN' ? tableId : null,
-      status: 'OPEN',
-      items: [],
-      payments: [],
-      taxRatePercent,
-      discount: null,
-      cancelReason: null,
-      createdBy: profile.uid,
-      createdAt: FieldValue.serverTimestamp(),
+    // Daily, per-tenant ticket number ("Order #7"), distinct from the
+    // Firestore doc id — assigned via a transaction on a tiny counter
+    // doc so two orders created at the same instant never collide.
+    const ref = adminDb.collection(`tenants/${tenantId}/orders`).doc();
+    const counterRef = adminDb.doc(
+      `tenants/${tenantId}/ticketCounters/${dateKeyForDate(new Date())}`,
+    );
+    const ticketNumber = await adminDb.runTransaction(async (tx) => {
+      const counterSnap = await tx.get(counterRef);
+      const next = ((counterSnap.data()?.count as number) ?? 0) + 1;
+      tx.set(counterRef, { count: next });
+      tx.set(ref, {
+        ticketNumber: next,
+        orderType,
+        tableId: orderType === 'DINE_IN' ? tableId : null,
+        status: 'OPEN',
+        items: [],
+        payments: [],
+        taxRatePercent,
+        discount: null,
+        cancelReason: null,
+        createdBy: profile.uid,
+        createdAt: FieldValue.serverTimestamp(),
+      });
+      return next;
     });
 
     await logAudit(profile, 'ORDER_CREATED', 'order', ref.id, {
       orderType,
       tableId,
+      ticketNumber,
     });
     revalidatePath('/orders');
     return { id: ref.id };
@@ -217,5 +233,32 @@ export async function sendToKitchen(orderId: string): Promise<ActionResult> {
     revalidatePath(`/orders/${id}`);
     revalidatePath(`/orders/${id}/kot`);
     revalidatePath('/orders');
+  });
+}
+
+/** Kitchen marks a ticket ready to serve (KOT_SENT -> SERVED). */
+export async function markOrderReady(orderId: string): Promise<ActionResult> {
+  return runAction(async () => {
+    const { profile, tenantId } = await requireStaffOrAdmin();
+    const id = z.string().min(1).parse(orderId);
+    const orderRef = adminDb.doc(`tenants/${tenantId}/orders/${id}`);
+
+    await adminDb.runTransaction(async (tx) => {
+      const snap = await tx.get(orderRef);
+      if (!snap.exists) throw new Error('No such order in this tenant');
+      const order = snap.data() as { status: string };
+      if (order.status !== 'KOT_SENT') {
+        throw new Error('Only a ticket in the kitchen can be marked ready');
+      }
+      tx.update(orderRef, {
+        status: 'SERVED',
+        servedAt: FieldValue.serverTimestamp(),
+      });
+    });
+
+    await logAudit(profile, 'ORDER_MARKED_READY', 'order', id, {});
+    revalidatePath(`/orders/${id}`);
+    revalidatePath('/orders');
+    revalidatePath('/kitchen');
   });
 }

@@ -64,6 +64,7 @@ export default async function KotPage({
           Plain black-on-white regardless of screen: this prints on
           thermal/receipt paper, where colored backgrounds don't help. */}
       <div className="flex flex-col gap-2 border border-zinc-300 p-4 text-sm">
+        <p className="text-3xl font-extrabold">#{order.ticketNumber}</p>
         <p className="font-medium">
           {order.orderType.replace('_', '-')}
           {tableLabel ? ` · ${tableLabel}` : ''}

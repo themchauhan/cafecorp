@@ -21,13 +21,15 @@ async function login(
 test('admin can log in, see the dashboard, and log out', async ({ page }) => {
   await login(page, 'admin@demo.cafe', 'password123');
   await expect(page).toHaveURL('/', { timeout: 10_000 });
-  // The dashboard shows the tenant's real display name ("Demo Cafe"),
-  // not its Firestore document ID — real tenants get random auto-IDs,
-  // so showing the raw ID would be meaningless/ugly for them.
-  await expect(page.getByText(/tenant Demo Cafe/)).toBeVisible({
+  // The dashboard greets the signed-in user by their real profile
+  // name, and shows the tenant's real display name ("Demo Cafe"), not
+  // either one's Firestore document ID — real tenants/users get
+  // random auto-IDs, so showing a raw ID would be meaningless/ugly.
+  const main = page.locator('main');
+  await expect(main.getByText(/Demo Cafe Admin/)).toBeVisible({
     timeout: 10_000,
   });
-  await expect(page.getByRole('strong')).toHaveText('ADMIN');
+  await expect(main.getByText(/Demo Cafe · ADMIN/)).toBeVisible();
 
   await page.getByRole('button', { name: 'Log out' }).click();
   await expect(page).toHaveURL(/\/login$/, { timeout: 10_000 });

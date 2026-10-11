@@ -4,19 +4,32 @@ import type { Order } from './types';
 
 type RawOrderDoc = Omit<
   Order,
-  'id' | 'createdAt' | 'kotSentAt' | 'taxRatePercent' | 'discount'
+  | 'id'
+  | 'createdAt'
+  | 'kotSentAt'
+  | 'servedAt'
+  | 'taxRatePercent'
+  | 'discount'
+  | 'ticketNumber'
 > & {
   createdAt?: Timestamp;
   kotSentAt?: Timestamp;
+  servedAt?: Timestamp;
   // Absent on any order created before Phase 9.
   taxRatePercent?: number;
   discount?: Order['discount'];
+  // Absent on any order created before this ticket-numbering change.
+  ticketNumber?: number;
 };
 
 /** Converts a Firestore order doc to a plain, serializable Order (Timestamps -> ISO strings). */
 export function mapOrderDoc(id: string, data: RawOrderDoc): Order {
   return {
     id,
+    // 0 is a visibly-pre-numbering placeholder, not a real ticket
+    // number (those start at 1) — only ever seen on orders that
+    // predate this feature.
+    ticketNumber: data.ticketNumber ?? 0,
     orderType: data.orderType,
     tableId: data.tableId ?? null,
     status: data.status,
@@ -30,5 +43,6 @@ export function mapOrderDoc(id: string, data: RawOrderDoc): Order {
     createdBy: data.createdBy,
     createdAt: data.createdAt ? data.createdAt.toDate().toISOString() : null,
     kotSentAt: data.kotSentAt ? data.kotSentAt.toDate().toISOString() : null,
+    servedAt: data.servedAt ? data.servedAt.toDate().toISOString() : null,
   };
 }
