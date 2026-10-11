@@ -117,6 +117,14 @@ service cloud.firestore {
       match /ticketCounters/{dateKey} {
         allow read, write: if false;
       }
+
+      // GST legal-invoice-number counter (one doc per Indian financial
+      // year). Same reasoning as ticketCounters — purely internal to
+      // addPayment's transaction, the assigned number is already
+      // exposed via the (readable) order doc.
+      match /gstInvoiceCounters/{financialYearKey} {
+        allow read, write: if false;
+      }
     }
 
     // Deny-by-default safety net for every collection not explicitly

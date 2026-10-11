@@ -11,6 +11,12 @@ type RawOrderDoc = Omit<
   | 'taxRatePercent'
   | 'discount'
   | 'ticketNumber'
+  | 'gstEnabled'
+  | 'gstin'
+  | 'gstLegalName'
+  | 'gstAddress'
+  | 'gstSacCode'
+  | 'gstInvoiceNumber'
 > & {
   createdAt?: Timestamp;
   kotSentAt?: Timestamp;
@@ -20,6 +26,13 @@ type RawOrderDoc = Omit<
   discount?: Order['discount'];
   // Absent on any order created before this ticket-numbering change.
   ticketNumber?: number;
+  // Absent on any order created before GST invoicing existed.
+  gstEnabled?: boolean;
+  gstin?: string | null;
+  gstLegalName?: string | null;
+  gstAddress?: string | null;
+  gstSacCode?: string | null;
+  gstInvoiceNumber?: string | null;
 };
 
 /** Converts a Firestore order doc to a plain, serializable Order (Timestamps -> ISO strings). */
@@ -44,5 +57,11 @@ export function mapOrderDoc(id: string, data: RawOrderDoc): Order {
     createdAt: data.createdAt ? data.createdAt.toDate().toISOString() : null,
     kotSentAt: data.kotSentAt ? data.kotSentAt.toDate().toISOString() : null,
     servedAt: data.servedAt ? data.servedAt.toDate().toISOString() : null,
+    gstEnabled: data.gstEnabled ?? false,
+    gstin: data.gstin ?? null,
+    gstLegalName: data.gstLegalName ?? null,
+    gstAddress: data.gstAddress ?? null,
+    gstSacCode: data.gstSacCode ?? null,
+    gstInvoiceNumber: data.gstInvoiceNumber ?? null,
   };
 }

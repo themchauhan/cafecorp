@@ -7,6 +7,7 @@ import {
   requireRole,
   requireTenantId,
 } from '@/lib/auth/session';
+import { gstSplit } from '@/lib/gst';
 import { mapOrderDoc } from '../../lib';
 import {
   amountPaid,
@@ -57,16 +58,30 @@ export default async function ReceiptPage({
   const tax = taxAmount(subtotal, order.discount, order.taxRatePercent);
   const total = grandTotal(order.items, order.discount, order.taxRatePercent);
   const paid = amountPaid(order.payments);
+  const { cgst, sgst } = gstSplit(tax);
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-1 flex-col gap-4 px-4 py-8">
       <div className="flex items-center justify-between print:hidden">
-        <h1 className="text-2xl font-bold tracking-tight">Receipt</h1>
+        <h1 className="text-2xl font-bold tracking-tight">
+          {order.gstEnabled ? 'Tax Invoice' : 'Receipt'}
+        </h1>
         <PrintButton />
       </div>
 
       {/* Plain black-on-white — this prints on thermal/receipt paper. */}
       <div className="flex flex-col gap-2 border border-zinc-300 p-4 text-sm">
+        {order.gstEnabled && (
+          <div className="flex flex-col gap-0.5 border-b border-zinc-300 pb-2">
+            <p className="font-bold">{order.gstLegalName}</p>
+            <p className="text-zinc-600">{order.gstAddress}</p>
+            <p className="text-zinc-600">GSTIN: {order.gstin}</p>
+            <p className="text-zinc-600">SAC: {order.gstSacCode}</p>
+            {order.gstInvoiceNumber && (
+              <p className="font-medium">Invoice #{order.gstInvoiceNumber}</p>
+            )}
+          </div>
+        )}
         <p className="font-medium">{order.orderType.replace('_', '-')}</p>
         <ul className="flex flex-col gap-1 border-t border-zinc-300 pt-2">
           {order.items.map((item, index) => (
@@ -94,7 +109,19 @@ export default async function ReceiptPage({
               <span>-{discount.toFixed(2)}</span>
             </p>
           )}
-          {tax > 0 && (
+          {tax > 0 && order.gstEnabled && (
+            <>
+              <p className="flex justify-between">
+                <span>CGST ({(order.taxRatePercent / 2).toFixed(2)}%)</span>
+                <span>{cgst.toFixed(2)}</span>
+              </p>
+              <p className="flex justify-between">
+                <span>SGST ({(order.taxRatePercent / 2).toFixed(2)}%)</span>
+                <span>{sgst.toFixed(2)}</span>
+              </p>
+            </>
+          )}
+          {tax > 0 && !order.gstEnabled && (
             <p className="flex justify-between">
               <span>Tax ({order.taxRatePercent}%)</span>
               <span>{tax.toFixed(2)}</span>

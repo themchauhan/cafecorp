@@ -49,4 +49,18 @@ export type Order = {
   kotSentAt: string | null;
   // Set when the kitchen marks this ticket ready (KOT_SENT -> SERVED).
   servedAt: string | null;
+  // GST tax-invoice fields (Phase 9+), snapshotted from the tenant's
+  // settings at creation time — same reasoning as taxRatePercent: a
+  // later change to the tenant's GSTIN/address must never rewrite a
+  // past invoice. All null/false when the tenant doesn't issue GST
+  // invoices (the default — zero behavior change for those tenants).
+  gstEnabled: boolean;
+  gstin: string | null;
+  gstLegalName: string | null;
+  gstAddress: string | null;
+  gstSacCode: string | null;
+  // Assigned at billing time (addPayment), not creation — only a
+  // billed order needs a legal invoice number, and Rule 46 requires
+  // it to be a gapless serial number unique per financial year.
+  gstInvoiceNumber: string | null;
 };

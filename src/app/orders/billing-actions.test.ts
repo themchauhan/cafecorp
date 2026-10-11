@@ -38,6 +38,7 @@ vi.mock('@/lib/auth/session', async () => {
   };
 });
 
+import { financialYearKeyForDate, formatGstInvoiceNumber } from '@/lib/gst';
 import { addPayment, applyDiscount, cancelOrder } from './billing-actions';
 
 const staff = { uid: 'staff-1', role: 'STAFF' as const, tenantId: 'tenant-a' };
@@ -262,6 +263,92 @@ describe('addPayment', () => {
       mode: 'UPI',
     });
     expect(result).toEqual({ ok: true, data: { billed: false } });
+  });
+
+  it('assigns a sequential GST invoice number when billing a GST-enabled order', async () => {
+    txGet
+      .mockResolvedValueOnce({
+        exists: true,
+        data: () => ({
+          status: 'KOT_SENT',
+          items: [
+            {
+              menuItemId: 'item-1',
+              name: 'Tea',
+              quantity: 2,
+              priceSnapshot: 20,
+              notes: '',
+            },
+          ],
+          payments: [],
+          gstEnabled: true,
+        }),
+      })
+      .mockResolvedValueOnce({
+        exists: true,
+        data: () => ({ categoryId: 'cat-beverages' }),
+      })
+      .mockResolvedValueOnce({ data: () => ({ count: 5 }) }); // GST counter, already at 5
+
+    const result = await addPayment({
+      orderId: 'order-1',
+      amount: 40,
+      mode: 'CASH',
+    });
+    expect(result).toEqual({ ok: true, data: { billed: true } });
+
+    const expectedInvoiceNumber = formatGstInvoiceNumber(
+      financialYearKeyForDate(new Date()),
+      6,
+    );
+    const [, updatePayload] = txUpdate.mock.calls[0] as [
+      unknown,
+      Record<string, unknown>,
+    ];
+    expect(updatePayload.gstInvoiceNumber).toBe(expectedInvoiceNumber);
+
+    // First tx.set() is the GST counter (count: 5 -> 6), second is
+    // dailySummaries — same ordering the implementation writes them in.
+    expect(txSet).toHaveBeenCalledTimes(2);
+    const [, counterUpdate] = txSet.mock.calls[0] as [
+      unknown,
+      { count: number },
+    ];
+    expect(counterUpdate).toEqual({ count: 6 });
+  });
+
+  it('assigns no GST invoice number when the order is not GST-enabled', async () => {
+    txGet
+      .mockResolvedValueOnce({
+        exists: true,
+        data: () => ({
+          status: 'KOT_SENT',
+          items: [
+            {
+              menuItemId: 'item-1',
+              name: 'Tea',
+              quantity: 2,
+              priceSnapshot: 20,
+              notes: '',
+            },
+          ],
+          payments: [],
+        }),
+      })
+      .mockResolvedValueOnce({
+        exists: true,
+        data: () => ({ categoryId: 'cat-beverages' }),
+      });
+
+    await addPayment({ orderId: 'order-1', amount: 40, mode: 'CASH' });
+
+    const [, updatePayload] = txUpdate.mock.calls[0] as [
+      unknown,
+      Record<string, unknown>,
+    ];
+    expect(updatePayload.gstInvoiceNumber).toBeUndefined();
+    // Only dailySummaries, no GST counter write.
+    expect(txSet).toHaveBeenCalledTimes(1);
   });
 
   it('requires payments to cover the discount- and tax-adjusted total, not the raw subtotal', async () => {

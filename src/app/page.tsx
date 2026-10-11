@@ -15,21 +15,66 @@ import { KitchenSnapshot } from './kitchen/kitchen-snapshot';
 
 const QUICK_ACTIONS: Record<
   'ADMIN' | 'STAFF' | 'SUPER_ADMIN',
-  { href: string; label: string; hint: string; icon: ComponentType<{ size?: number; className?: string }> }[]
+  {
+    href: string;
+    label: string;
+    hint: string;
+    icon: ComponentType<{ size?: number; className?: string }>;
+  }[]
 > = {
   STAFF: [
-    { href: '/orders', label: 'Take an order', hint: 'Start a new order', icon: OrderIcon },
-    { href: '/kitchen', label: 'Kitchen board', hint: 'Live tickets', icon: KitchenIcon },
-    { href: '/tables', label: 'Tables', hint: 'Check table status', icon: TableIcon },
+    {
+      href: '/orders',
+      label: 'Take an order',
+      hint: 'Start a new order',
+      icon: OrderIcon,
+    },
+    {
+      href: '/kitchen',
+      label: 'Kitchen board',
+      hint: 'Live tickets',
+      icon: KitchenIcon,
+    },
+    {
+      href: '/tables',
+      label: 'Tables',
+      hint: 'Check table status',
+      icon: TableIcon,
+    },
   ],
   ADMIN: [
-    { href: '/orders', label: 'Take an order', hint: 'Start a new order', icon: OrderIcon },
-    { href: '/kitchen', label: 'Kitchen board', hint: 'Live tickets', icon: KitchenIcon },
-    { href: '/reports', label: 'Reports', hint: "Today's collections", icon: ReportsIcon },
-    { href: '/admin', label: 'Admin', hint: 'Staff, menu, tables', icon: AdminIcon },
+    {
+      href: '/orders',
+      label: 'Take an order',
+      hint: 'Start a new order',
+      icon: OrderIcon,
+    },
+    {
+      href: '/kitchen',
+      label: 'Kitchen board',
+      hint: 'Live tickets',
+      icon: KitchenIcon,
+    },
+    {
+      href: '/reports',
+      label: 'Reports',
+      hint: "Today's collections",
+      icon: ReportsIcon,
+    },
+    {
+      href: '/admin',
+      label: 'Admin',
+      hint: 'Staff, menu, tables',
+      icon: AdminIcon,
+    },
   ],
   SUPER_ADMIN: [
-    { href: '/super-admin', label: 'Tenants', hint: 'Manage cafeterias', icon: TenantsIcon },
+    {
+      href: '/super-admin',
+      label: 'Tenants',
+      hint: 'Manage cafeterias',
+      icon: TenantsIcon,
+    },
   ],
 };
 
@@ -73,9 +118,10 @@ export default async function Home() {
         </p>
       </div>
 
-      {profile.tenantId && (profile.role === 'STAFF' || profile.role === 'ADMIN') && (
-        <KitchenSnapshot tenantId={profile.tenantId} />
-      )}
+      {profile.tenantId &&
+        (profile.role === 'STAFF' || profile.role === 'ADMIN') && (
+          <KitchenSnapshot tenantId={profile.tenantId} />
+        )}
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
         {actions.map((action) => (

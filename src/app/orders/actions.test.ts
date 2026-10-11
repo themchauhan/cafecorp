@@ -106,12 +106,18 @@ describe('createOrder', () => {
   it('assigns sequential ticket numbers within the same day', async () => {
     txGet.mockResolvedValueOnce({ data: () => undefined }); // first order today
     await createOrder({ orderType: 'TAKEAWAY' });
-    const [, firstOrder] = txSet.mock.calls[1] as [unknown, { ticketNumber: number }];
+    const [, firstOrder] = txSet.mock.calls[1] as [
+      unknown,
+      { ticketNumber: number },
+    ];
     expect(firstOrder.ticketNumber).toBe(1);
 
     txGet.mockResolvedValueOnce({ data: () => ({ count: 1 }) }); // counter now at 1
     await createOrder({ orderType: 'TAKEAWAY' });
-    const [, secondOrder] = txSet.mock.calls[3] as [unknown, { ticketNumber: number }];
+    const [, secondOrder] = txSet.mock.calls[3] as [
+      unknown,
+      { ticketNumber: number },
+    ];
     expect(secondOrder.ticketNumber).toBe(2);
   });
 
@@ -125,6 +131,52 @@ describe('createOrder', () => {
       2,
       expect.anything(),
       expect.objectContaining({ taxRatePercent: 5 }),
+    );
+  });
+
+  it("snapshots the tenant's GST settings onto the new order when GST invoicing is on", async () => {
+    docGet.mockResolvedValue({
+      exists: true,
+      data: () => ({
+        taxRatePercent: 5,
+        gstEnabled: true,
+        gstin: '09AAACH7409R1ZZ',
+        gstLegalName: 'Demo Cafe Pvt Ltd',
+        gstAddress: '1 MG Road, Prayagraj',
+        gstSacCode: '996331',
+      }),
+    });
+    await createOrder({ orderType: 'TAKEAWAY' });
+    expect(txSet).toHaveBeenNthCalledWith(
+      2,
+      expect.anything(),
+      expect.objectContaining({
+        gstEnabled: true,
+        gstin: '09AAACH7409R1ZZ',
+        gstLegalName: 'Demo Cafe Pvt Ltd',
+        gstAddress: '1 MG Road, Prayagraj',
+        gstSacCode: '996331',
+        gstInvoiceNumber: null,
+      }),
+    );
+  });
+
+  it('snapshots GST fields as null/false when the tenant has GST invoicing off', async () => {
+    docGet.mockResolvedValue({
+      exists: true,
+      data: () => ({ taxRatePercent: 5, gstEnabled: false }),
+    });
+    await createOrder({ orderType: 'TAKEAWAY' });
+    expect(txSet).toHaveBeenNthCalledWith(
+      2,
+      expect.anything(),
+      expect.objectContaining({
+        gstEnabled: false,
+        gstin: null,
+        gstLegalName: null,
+        gstAddress: null,
+        gstSacCode: null,
+      }),
     );
   });
 

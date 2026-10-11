@@ -13,6 +13,7 @@ import {
   requireTenantId,
 } from '@/lib/auth/session';
 import { dateKeyForDate } from '@/lib/daily-summary';
+import { DEFAULT_SAC_CODE } from '@/lib/gst';
 import type { OrderLineItem } from './types';
 
 async function requireStaffOrAdmin() {
@@ -50,10 +51,23 @@ export async function createOrder(input: {
     }
 
     // Snapshotted now, not read again at billing time — a tax-rate
-    // change in Settings must never alter an order already in flight
-    // (CLAUDE.md rule 9's reasoning extended to tax, not just price).
+    // (or GST settings) change in Settings must never alter an order
+    // already in flight (CLAUDE.md rule 9's reasoning extended to tax,
+    // not just price).
     const tenantSnap = await adminDb.doc(`tenants/${tenantId}`).get();
-    const taxRatePercent = (tenantSnap.data()?.taxRatePercent as number) ?? 0;
+    const tenantData = tenantSnap.data();
+    const taxRatePercent = (tenantData?.taxRatePercent as number) ?? 0;
+    const gstEnabled = (tenantData?.gstEnabled as boolean) ?? false;
+    const gstin = gstEnabled ? ((tenantData?.gstin as string) ?? null) : null;
+    const gstLegalName = gstEnabled
+      ? ((tenantData?.gstLegalName as string) ?? null)
+      : null;
+    const gstAddress = gstEnabled
+      ? ((tenantData?.gstAddress as string) ?? null)
+      : null;
+    const gstSacCode = gstEnabled
+      ? ((tenantData?.gstSacCode as string) ?? DEFAULT_SAC_CODE)
+      : null;
 
     // Daily, per-tenant ticket number ("Order #7"), distinct from the
     // Firestore doc id — assigned via a transaction on a tiny counter
@@ -75,6 +89,12 @@ export async function createOrder(input: {
         payments: [],
         taxRatePercent,
         discount: null,
+        gstEnabled,
+        gstin,
+        gstLegalName,
+        gstAddress,
+        gstSacCode,
+        gstInvoiceNumber: null,
         cancelReason: null,
         createdBy: profile.uid,
         createdAt: FieldValue.serverTimestamp(),

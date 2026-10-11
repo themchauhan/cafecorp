@@ -38,14 +38,18 @@ function TicketCard({
   now: number;
   action?: { label: string; pending: boolean; onClick: () => void };
 }) {
-  const elapsedMs = order.kotSentAt ? now - new Date(order.kotSentAt).getTime() : 0;
+  const elapsedMs = order.kotSentAt
+    ? now - new Date(order.kotSentAt).getTime()
+    : 0;
   const urgency = ticketUrgency(elapsedMs);
   const isCooking = order.status === 'KOT_SENT';
 
   return (
     <div
       className={`card flex flex-col gap-3 border-t-4 p-4 ${
-        isCooking ? URGENCY_BORDER[urgency] : 'border-t-[var(--color-success-600)]'
+        isCooking
+          ? URGENCY_BORDER[urgency]
+          : 'border-t-[var(--color-success-600)]'
       }`}
     >
       <div className="flex items-center justify-between gap-2">
@@ -173,8 +177,7 @@ export function KitchenBoard({ tenantId }: { tenantId: string }) {
         <span className="flex items-center gap-2 text-[var(--color-warning-700)]">
           <FlameBadgeIcon />
           {cooking.length} cooking
-          {cooking.length > 0 &&
-            ` · oldest ${formatElapsed(oldestCookingMs)}`}
+          {cooking.length > 0 && ` · oldest ${formatElapsed(oldestCookingMs)}`}
         </span>
         <span className="flex items-center gap-2 text-[var(--color-success-700)]">
           <CheckBadgeIcon />
@@ -182,7 +185,9 @@ export function KitchenBoard({ tenantId }: { tenantId: string }) {
         </span>
       </div>
 
-      {error && <p className="text-sm text-[var(--color-danger-600)]">{error}</p>}
+      {error && (
+        <p className="text-sm text-[var(--color-danger-600)]">{error}</p>
+      )}
 
       {orders.length === 0 ? (
         <p className="card p-6 text-sm text-[var(--muted)]">

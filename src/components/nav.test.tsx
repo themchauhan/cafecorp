@@ -48,7 +48,9 @@ describe('Nav', () => {
   });
 
   it('only shows Dashboard and Admin for SUPER_ADMIN, who has no tenant', () => {
-    render(<Nav profile={{ uid: 'u1', role: 'SUPER_ADMIN', tenantId: null }} />);
+    render(
+      <Nav profile={{ uid: 'u1', role: 'SUPER_ADMIN', tenantId: null }} />,
+    );
     expect(screen.getByText('Dashboard')).toBeInTheDocument();
     expect(screen.getByText('Admin')).toBeInTheDocument();
     expect(screen.queryByText('Orders')).not.toBeInTheDocument();

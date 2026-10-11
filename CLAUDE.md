@@ -12,16 +12,18 @@ paper order pad and register.
 Phases 1a–8 (the original MVP, see `docs/BRIEF.md`) deliberately
 excluded online ordering, inventory, and staff attendance to ship
 something real first. Phase 9 onward expands toward the full feature
-set now being marketed (billing taxes/discounts, kitchen timers,
-peak-hour reports, staff shifts/attendance, ingredient stock +
-recipes, and QR at-table customer self-ordering) — see
+set now being marketed (billing taxes/discounts, GST tax invoicing,
+kitchen timers, peak-hour reports, staff shifts/attendance, ingredient
+stock + recipes, and QR at-table customer self-ordering) — see
 `docs/phases/phase-9.md` onward as each lands. Two boundaries still
 hold even as scope grows: **no delivery integration or third-party
 ordering platforms** (QR ordering is strictly in-house, scoped to a
 table at the tenant's own premises, not remote/delivery), and **no
 online payment gateway** (rule 8) — "inventory" here means simple
 stock-count tracking + recipes, not full costing/COGS/vendor
-accounting.
+accounting. GST tax invoicing supports the Regular scheme only (GSTIN,
+serial invoice number, CGST+SGST breakup) — not the Composition-scheme
+Bill of Supply variant.
 
 Full MVP spec: `docs/BRIEF.md` (describes Phases 1a–8; not yet
 updated for Phase 9+). Phase checklists: `docs/phases/phase-N.md` —

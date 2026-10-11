@@ -2,7 +2,13 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { collection, onSnapshot, query, Timestamp, where } from 'firebase/firestore';
+import {
+  collection,
+  onSnapshot,
+  query,
+  Timestamp,
+  where,
+} from 'firebase/firestore';
 import { db } from '@/lib/firebase/client';
 import { CheckBadgeIcon, FlameBadgeIcon } from '@/components/icons';
 import { formatElapsed } from './timer';
@@ -42,7 +48,8 @@ export function KitchenSnapshot({ tenantId }: { tenantId: string }) {
           const kotSentAt = data.kotSentAt as Timestamp | undefined;
           if (
             kotSentAt &&
-            (!oldestKotSentAt || kotSentAt.toMillis() < oldestKotSentAt.toMillis())
+            (!oldestKotSentAt ||
+              kotSentAt.toMillis() < oldestKotSentAt.toMillis())
           ) {
             oldestKotSentAt = kotSentAt;
           }

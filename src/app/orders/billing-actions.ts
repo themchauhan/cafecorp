@@ -17,6 +17,7 @@ import {
   dateKeyForDate,
   hourKeyForDate,
 } from '@/lib/daily-summary';
+import { financialYearKeyForDate, formatGstInvoiceNumber } from '@/lib/gst';
 import { amountPaid, grandTotal } from './money';
 import type { OrderDiscount, OrderLineItem, OrderPayment } from './types';
 
@@ -55,6 +56,7 @@ export async function addPayment(input: {
         payments: OrderPayment[];
         discount?: OrderDiscount;
         taxRatePercent?: number;
+        gstEnabled?: boolean;
       };
       if (!BILLABLE_STATUSES.has(order.status)) {
         throw new Error('This order can no longer accept payments');
@@ -101,10 +103,32 @@ export async function addPayment(input: {
         if (categoryId) categoryByMenuItemId.set(menuItemIds[i], categoryId);
       });
 
+      // Only a GST-enabled order gets a legal invoice number, assigned
+      // here (not at order creation) since only a billed order needs
+      // one, and Rule 46 requires it to be a gapless serial number
+      // unique per financial year — read before any write, same
+      // reasoning as ticketCounters in createOrder.
+      let gstInvoiceNumber: string | null = null;
+      const financialYear = financialYearKeyForDate(new Date());
+      const gstCounterRef = adminDb.doc(
+        `tenants/${tenantId}/gstInvoiceCounters/${financialYear}`,
+      );
+      if (order.gstEnabled) {
+        const gstCounterSnap = await tx.get(gstCounterRef);
+        const nextGstSequence =
+          ((gstCounterSnap.data()?.count as number) ?? 0) + 1;
+        tx.set(gstCounterRef, { count: nextGstSequence });
+        gstInvoiceNumber = formatGstInvoiceNumber(
+          financialYear,
+          nextGstSequence,
+        );
+      }
+
       tx.update(orderRef, {
         payments,
         status: 'BILLED',
         billedAt: FieldValue.serverTimestamp(),
+        ...(gstInvoiceNumber ? { gstInvoiceNumber } : {}),
       });
 
       // Sum same-key contributions locally first (e.g. two CASH

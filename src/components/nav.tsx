@@ -38,7 +38,9 @@ export function Nav({
   const [open, setOpen] = useState(false);
   const identityLabel = displayName ?? profile?.role ?? '';
   const visibleLinks = profile
-    ? NAV_LINKS.filter((link) => VISIBLE_HREFS[profile.role].includes(link.href))
+    ? NAV_LINKS.filter((link) =>
+        VISIBLE_HREFS[profile.role].includes(link.href),
+      )
     : NAV_LINKS;
 
   return (
@@ -78,9 +80,7 @@ export function Nav({
                 <span className="font-semibold text-[var(--foreground)]">
                   {identityLabel}
                 </span>
-                {displayName && (
-                  <span className="text-xs">{profile.role}</span>
-                )}
+                {displayName && <span className="text-xs">{profile.role}</span>}
               </span>
               <LogoutButton />
             </>

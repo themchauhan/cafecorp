@@ -7,6 +7,7 @@ import {
   requireRole,
   requireTenantId,
 } from '@/lib/auth/session';
+import { GstSettingsForm } from './gst-settings-form';
 import { TaxRateForm } from './tax-rate-form';
 
 export default async function SettingsPage() {
@@ -27,12 +28,20 @@ export default async function SettingsPage() {
   }
 
   const tenantSnap = await adminDb.doc(`tenants/${tenantId}`).get();
-  const taxRatePercent = (tenantSnap.data()?.taxRatePercent as number) ?? 0;
+  const tenantData = tenantSnap.data();
+  const taxRatePercent = (tenantData?.taxRatePercent as number) ?? 0;
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-1 flex-col gap-6 px-4 py-8">
       <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
       <TaxRateForm initialTaxRatePercent={taxRatePercent} />
+      <GstSettingsForm
+        initialGstEnabled={(tenantData?.gstEnabled as boolean) ?? false}
+        initialGstin={(tenantData?.gstin as string) ?? ''}
+        initialGstLegalName={(tenantData?.gstLegalName as string) ?? ''}
+        initialGstAddress={(tenantData?.gstAddress as string) ?? ''}
+        initialGstSacCode={(tenantData?.gstSacCode as string) ?? ''}
+      />
     </main>
   );
 }
